@@ -20,7 +20,7 @@ from pydrive.drive import GoogleDrive
 import pandas_market_calendars as mcal
 import pytz
 import kj
-from kj import order_place,order_modify,check_order_history,order_cancel_place,order_modify_multiple,order_multiple_place,order_place_sqr_complete,order_modify_complete,order_place_manage
+from kj import KiteApp,order_place,order_modify,check_order_history,order_cancel_place,order_modify_multiple,order_multiple_place,order_place_sqr_complete,order_modify_complete,order_place_manage
 # from kk import order_place
 import streamlit as st
 # from mm import pykite
@@ -40,13 +40,14 @@ class CustomThread(Thread):
         Thread.join(self, *args)
         return self._return
 
-instru_name = "NIFTY"
+instru_name = "BANKNIFTY"
 if instru_name == "NIFTY":
-    qty_plc = 50
+    qty_plc = 25
 elif instru_name == "BANKNIFTY":
     qty_plc = 15
 df99=pd.DataFrame()
 df79=pd.DataFrame()
+kite = ""
 logger = logging.getLogger(__name__)
 gauth = GoogleAuth()
 # Try to load saved client credentials
@@ -83,6 +84,23 @@ public_token = ""
 enc_token = ""
 enctoken = ""
 
+
+def get_enctoken(userid, password, twofa):
+    session = requests.Session()
+    response = session.post('https://kite.zerodha.com/api/login', data={
+        "user_id": userid,
+        "password": password
+    })
+    response = session.post('https://kite.zerodha.com/api/twofa', data={
+        "request_id": response.json()['data']['request_id'],
+        "twofa_value": twofa,
+        "user_id": response.json()['data']['user_id']
+    })
+    enctoken = response.cookies.get('enctoken')
+    if enctoken:
+        return enctoken
+    else:
+        raise Exception("Enter valid details !!!!")
 
 def get_data(n, fromm, to, interval,s):
     ID = n
@@ -568,7 +586,7 @@ def cancel_pending_complete(s,order_pending_complete_tobe_cancel,order_cancel_co
 
     
 def square_off_buy(order_manage,order_tobe_sqr_complete,s):
-    global file_list
+    global file_list, kite
     order_manage = order_manage
     order_tobe_sqr_complete = order_tobe_sqr_complete
     err_sqr = 0
@@ -578,7 +596,9 @@ def square_off_buy(order_manage,order_tobe_sqr_complete,s):
     for mj in range(0,len(order_tobe_sqr_complete)):
         print("Sqr "+str(order_tobe_sqr_complete['leg'][mj])+str(order_tobe_sqr_complete['strike'][mj])+str(order_tobe_sqr_complete['contract'][mj])," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
         buy_sell="SELL"
-        df_opt = get_data(order_tobe_sqr_complete['instrument_id'][mj],fromm, fromm, "minute",s)
+        df_opt = pd.DataFrame(kite.historical_data(opt_id_1, fromm, fromm, "minute", continuous=False, oi=True))
+        s = kite
+
         retry_order = 0
         order = order_place_sqr_complete(s,file_list,drive,order_tobe_sqr_complete['current_signal'][mj],order_tobe_sqr_complete['instrument_id'][mj],order_tobe_sqr_complete['trading_symbol'][mj],df_opt,order_tobe_sqr_complete['qty'][mj],order_tobe_sqr_complete['instru'][mj],0,order_tobe_sqr_complete['leg'][mj],order_tobe_sqr_complete['strike'][mj],order_tobe_sqr_complete['contract'][mj],order_tobe_sqr_complete['expiry'][mj],0,1,buy_sell,retry_order,order_tobe_sqr_complete['status'][mj],order_tobe_sqr_complete['reject_count'][mj],order_tobe_sqr_complete['cancel_count'][mj],0)
         if order == "close":
@@ -627,8 +647,9 @@ def buy_pos(x,s,df25,df,exp_1,exp_2,weekly_rollover,monthly_rollover,square_off,
         print("trade id set "," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
     else:
         trade_id = df79['trade_id'].max() + 1
-    df_opt_1 = get_data(opt_id_1,fromm, fromm, "minute",s)
+    df_opt_1 = pd.DataFrame(kite.historical_data(opt_id_1, fromm, fromm, "minute", continuous=False, oi=True))
     price_opt_1 = df_opt_1['close'].iloc[-1]
+    s= kite
     price_opt_1_ideal = df_opt_1['close'].iloc[-1]
     instru = "Spread Up 1"
     quantity = qty_plc
@@ -684,7 +705,8 @@ def save_pos_buy(s,df25,df,exp_1,exp_2,weekly_rollover,monthly_rollover,df54):
     contract1 = "C"
     fresh_position = 1
     first_order = 0
-    df_opt_1 = get_data(opt_id_1,fromm, fromm, "minute",s)
+    df_opt_1 = pd.DataFrame(kite.historical_data(opt_id_1, fromm, fromm, "minute", continuous=False, oi=True))
+    s= kite
     price_opt_1 = df_opt_1['close'].iloc[-1]
     order_tobe_exec_log = []
     order_tobe_exec_log.append({'current_signal':current_signal,'entry_time':datetime.datetime.now(pytz.timezone('Asia/Kolkata')),'exit_time':'','leg':"leg1",'instru':"Spread Up 1",'order_id': 0,'qty':quantity,'price_when_order_placed': price_opt_1,'fresh_position': fresh_position,'buy_sell': "BUY",'instrument_id':opt_id_1,'trading_symbol':symbol_opt_1,'modification_error':0,'cancellation_error':0,'rejection_error':0,'multiple_sqr_off_error':0,'order_pending_error':0,'multi_sqr_off_error':0,'executed':0,'all_api_failed':0,'leg1_sqr_off_error':0,'leg1_fail_leg2_not_placed':0,'entry_price': 0,'strike': stk1,'contract': contract1,'status':"",'exit_price':'','expiry':expiry_opt_1,'trade_id':0,'sqr_off_order':0,'reject_count':0,'cancel_count':0,'sqr_order_id':0})
@@ -723,36 +745,38 @@ def hello_world():
     password = "NewYork123#"
     m = pyotp.TOTP("NOB3B7VSDMP5MIRKMXC5NQ5WLXEX7EO6")
     twofa = m.now()
-    login_url = "https://kite.zerodha.com/api/login"
-    r = s.post(login_url,
-               data={
-                   "user_id": user_id,
-                   "password": password
-               })
-    j = json.loads(r.text)
-    twofa_url = "https://kite.zerodha.com/api/twofa"
-    data = {
-        "user_id": user_id,
-        "request_id": j['data']["request_id"],
-        "twofa_value": twofa
-    }
-    r = s.post(twofa_url, data=data)
-    j = json.loads(r.text)
-    enctoken = "enctoken " + s.cookies["enctoken"]
-    print(enctoken," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
-    kf_session = s.cookies["kf_session"]
-    public_token = s.cookies["public_token"]
-    enc_token = s.cookies['enctoken']
-    h = {}
-    h['authorization'] = "enctoken {}".format(enc_token)
-    h['x-kite-version'] = '2.4.0'
-    h['sec-fetch-site'] = 'same-origin'
-    h['sec-fetch-mode'] = 'cors'
-    h['sec-fetch-dest'] = 'empty'
-    h['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5)\AppleWebKit/537.36 (KHTML, like Gecko) Cafari/537.36'
-    s.headers.update(h)
-#     kite = Kite(enctoken=enc_token)
-    #response = pd.read_csv("instruments.csv")
+    enctoken = get_enctoken(user_id, password, twofa)
+    kite = KiteApp(enctoken=enctoken)
+#     login_url = "https://kite.zerodha.com/api/login"
+#     r = s.post(login_url,
+#                data={
+#                    "user_id": user_id,
+#                    "password": password
+#                })
+#     j = json.loads(r.text)
+#     twofa_url = "https://kite.zerodha.com/api/twofa"
+#     data = {
+#         "user_id": user_id,
+#         "request_id": j['data']["request_id"],
+#         "twofa_value": twofa
+#     }
+#     r = s.post(twofa_url, data=data)
+#     j = json.loads(r.text)
+#     enctoken = "enctoken " + s.cookies["enctoken"]
+#     print(enctoken," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
+#     kf_session = s.cookies["kf_session"]
+#     public_token = s.cookies["public_token"]
+#     enc_token = s.cookies['enctoken']
+#     h = {}
+#     h['authorization'] = "enctoken {}".format(enc_token)
+#     h['x-kite-version'] = '2.4.0'
+#     h['sec-fetch-site'] = 'same-origin'
+#     h['sec-fetch-mode'] = 'cors'
+#     h['sec-fetch-dest'] = 'empty'
+#     h['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5)\AppleWebKit/537.36 (KHTML, like Gecko) Cafari/537.36'
+#     s.headers.update(h)
+# #     kite = Kite(enctoken=enc_token)
+#     #response = pd.read_csv("instruments.csv")
     #content = response.read().decode('utf-8')
     #print(content)
     response =""
@@ -901,6 +925,7 @@ def hello_world():
         ss = ""
         tt = ""
         dd = ""
+        s = kite
 #         global order_pending_complete,order_reject_complete,order_complete,order_pending,order_reject,order_manage,order_pending_multiple,order_reject_multiple,order_multiple,order_tobe_exec_log
         
         if current_time.second == 0 and current_time.minute % 5 == 0:
@@ -1832,7 +1857,8 @@ def hello_world():
                     else:
                         buy_sell="SELL"
                     if order_tobe_sqr_complete['leg'][mj] == "leg1":
-                        df_opt = get_data(order_tobe_sqr_complete['instrument_id'][mj],fromm, fromm, "minute",s)
+                        df_opt = pd.DataFrame(kite.historical_data(order_tobe_sqr_complete['instrument_id'][mj], fromm, fromm, "minute", continuous=False, oi=True))
+                        s = kite
                         retry_order = 0
                         order = order_place_sqr_complete(s,file_list,drive,order_tobe_sqr_complete['current_signal'][mj],order_tobe_sqr_complete['instrument_id'][mj],order_tobe_sqr_complete['trading_symbol'][mj],df_opt,order_tobe_sqr_complete['qty'][mj],order_tobe_sqr_complete['instru'][mj],0,order_tobe_sqr_complete['leg'][mj],order_tobe_sqr_complete['strike'][mj],order_tobe_sqr_complete['contract'][mj],order_tobe_sqr_complete['expiry'][mj],0,1,buy_sell,retry_order,order_tobe_sqr_complete['status'][mj],order_tobe_sqr_complete['reject_count'][mj],order_tobe_sqr_complete['cancel_count'][mj],0)
                         if order == "close":
@@ -2748,7 +2774,8 @@ def hello_world():
                     current_price =[None] * 4
                     overall_profit = 0
                     for mj in range(0,len(order_complete)):
-                        df_opt = get_data(order_complete['instrument_id'][mj],fromm, fromm, "minute",s)
+                        df_opt = pd.DataFrame(kite.historical_data(order_complete['instrument_id'][mj], fromm, fromm, "minute", continuous=False, oi=True))
+                        s = kite
                         currnt_profit[mj] = round((order_complete['entry_price'][mj] - df_opt['close'].iloc[-1])*order_complete['qty'][mj],2) if order_complete['leg'][mj] == "leg1" else round((df_opt['close'].iloc[-1] - order_complete['entry_price'][mj])*order_complete['qty'][mj],2)
                         instru[mj] = order_complete['instru'][mj]
                         strike[mj] = order_complete['strike'][mj]
