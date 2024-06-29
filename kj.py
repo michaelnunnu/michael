@@ -14,6 +14,9 @@ from datetime import date, timedelta
 import pyotp
 import datetime
 import enum
+import requests
+import dateutil.parser
+import pyotp,time
 import json
 import logging
 import random
@@ -26,18 +29,294 @@ import json,re
 from io import StringIO
 import time,threading,sys
 import pytz
+import pandas_market_calendars as mcal
 
-class kite:
+nyse = mcal.get_calendar('NSE')
+#eastern_tz = pytz.timezone('Asia/Kolkata')
+d = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
+#tz_NY = pytz.timezone('Asia/Kolkata')   
+#utc_offset = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
+today = date.today()
+today1 = datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()
+print(datetime.datetime.now(pytz.timezone('Asia/Kolkata')).time(),d.minute,datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date(),file=sys.stderr)
+start_date = (datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime('%Y-%m-%d'))
+if (datetime.datetime.now(pytz.timezone('Asia/Kolkata')).time() > datetime.time(0, 0,0)) and (datetime.datetime.now(pytz.timezone('Asia/Kolkata')).time() < datetime.time(9, 17, 0)):
+    start_date = (datetime.datetime.now(pytz.timezone('Asia/Kolkata'))- timedelta(days=1)).strftime('%Y-%m-%d')
+# else
+end_date = start_date
+#print(start_date)
+#d = (datetime.datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+#print(d)
+# Show available calendars
+#print(mcal.get_calendar_names())
+i = 1
+x = 1
+while i:
+    early = nyse.schedule(start_date=start_date, end_date=end_date)
+    start_date = (datetime.datetime.now(pytz.timezone('Asia/Kolkata')) - timedelta(days=x)).strftime('%Y-%m-%d')
+    x = x + 1
+    if len(early)>0:
+        i = 0
+        print(early.index.strftime('%Y-%m-%d').values[0])
+fromm = early.index.strftime('%Y-%m-%d').values[0]
+# class kite:
 
-    # Exchanges
-    EXCHANGE_NSE = "NSE"
-    EXCHANGE_BSE = "BSE"
-    EXCHANGE_NFO = "NFO"
-    EXCHANGE_CDS = "CDS"
-    EXCHANGE_BFO = "BFO"
-    EXCHANGE_MCX = "MCX"
-    EXCHANGE_BCD = "BCD"
+#     # Exchanges
+#     EXCHANGE_NSE = "NSE"
+#     EXCHANGE_BSE = "BSE"
+#     EXCHANGE_NFO = "NFO"
+#     EXCHANGE_CDS = "CDS"
+#     EXCHANGE_BFO = "BFO"
+#     EXCHANGE_MCX = "MCX"
+#     EXCHANGE_BCD = "BCD"
 
+#     # Products
+#     PRODUCT_MIS = "MIS"
+#     PRODUCT_CNC = "CNC"
+#     PRODUCT_NRML = "NRML"
+#     PRODUCT_CO = "CO"
+
+#     # Order types
+#     ORDER_TYPE_MARKET = "MARKET"
+#     ORDER_TYPE_LIMIT = "LIMIT"
+#     ORDER_TYPE_SLM = "SL-M"
+#     ORDER_TYPE_SL = "SL"
+
+#     # Varities
+#     VARIETY_REGULAR = "regular"
+#     VARIETY_CO = "co"
+#     VARIETY_AMO = "amo"
+#     VARIETY_ICEBERG = "iceberg"
+#     VARIETY_AUCTION = "auction"
+
+#     # Transaction type
+#     TRANSACTION_TYPE_BUY = "BUY"
+#     TRANSACTION_TYPE_SELL = "SELL"
+
+#     # Validity
+#     VALIDITY_DAY = "DAY"
+#     VALIDITY_IOC = "IOC"
+#     VALIDITY_TTL = "TTL"
+
+#     # Position Type
+#     POSITION_TYPE_DAY = "day"
+#     POSITION_TYPE_OVERNIGHT = "overnight"
+
+#     # Margins segments
+#     MARGIN_EQUITY = "equity"
+#     MARGIN_COMMODITY = "commodity"
+
+#     # GTT order type
+#     GTT_TYPE_OCO = "two-leg"
+#     GTT_TYPE_SINGLE = "single"
+
+# #     base_dir = Path(__file__).parent
+#     base_url = 'https://api.kite.trade'
+#     def __init__(self, enctoken=None):
+#         return None
+
+#     def instruments(s, exchange=None):
+#         '''return a CSV dump of all tradable instruments'''
+
+#         url = f'{base_url}/instruments'
+
+#         if exchange:
+#             url += f'/{exchange}'
+
+#         res = s.get(url)
+
+#         if res:
+#             return res.content
+
+#     def quote(s, instruments: str | list | tuple | set):
+#         '''Return the full market quotes - ohlc, OI, bid/ask etc'''
+#         base_url = 'https://api.kite.trade'
+
+#         if type(instruments) in (list, tuple, set) and len(instruments) > 500:
+#             raise ValueError('Instruments length cannot exceed 500')
+
+#         res = s.get(f"{base_url}/quote",params={'i': instruments})
+
+#         return res.json()['data'] if res else None
+
+#     def ohlc(s, instruments: str | list | tuple | set):
+#         '''Returns ohlc and last traded price'''
+#         base_url = 'https://api.kite.trade'
+
+#         if type(instruments) in (list, tuple, set) and len(instruments) > 1000:
+#             raise ValueError('Instruments length cannot exceed 1000')
+
+#         res = s.get(f"{base_url}/quote/ohlc", params={'i': instruments})
+
+#         return res.json()['data'] if res else None
+
+#     def ltp(instruments,s):
+#         '''Returns the last traded price'''
+
+#         if type(instruments) in (list, tuple, set) and len(instruments) > 1000:
+#             raise ValueError('Instruments length cannot exceed 1000')
+#         base_url = 'https://api.kite.trade'
+#         res = s.get(f"{base_url}/quote/ltp", params={'i': instruments[0]})
+#         print(res.json()['data'][instruments[0]]['last_price'])
+#         print(type(res.json()['data'][instruments[0]]['last_price']))
+#         return res.json()['data'][instruments[0]]['last_price'] if res else None
+
+#     def holdings(s):
+#         '''Return the list of long term equity holdings'''
+#         base_url = 'https://api.kite.trade'
+#         res = s.get(f'{base_url}/portfolio/holdings')
+
+#         return res.json()['data'] if res else None
+
+#     def positions(s):
+#         '''Retrieve the list of short term positions'''
+#         base_url = 'https://api.kite.trade'
+#         res = s.get(f'{base_url}/portfolio/positions')
+
+#         return res.json()['data'] if res else None
+
+#     def auctions(s,self):
+#         '''Retrieve the list of auctions that are currently being held'''
+#         base_url = 'https://api.kite.trade'
+#         res = s.get(f'{base_url}/portfolio/auctions')
+
+#         return res.json()['data'] if res else None
+
+#     def margins(s, segment=None):
+#         '''Returns funds, cash, and margin information for the user
+#         for equity and commodity segments'''
+#         base_url = 'https://api.kite.trade'
+
+#         url = f'{base_url}/user/margins'
+
+#         if segment:
+#             url += f'/{segment}'
+#         res = s.get(url)
+
+#         return res.json()['data'] if res else None
+
+#     def profile(s):
+#         '''Retrieve the user profile'''
+#         base_url = 'https://api.kite.trade'
+#         res = s.get(f'{base_url}/user/profile')
+
+#         return res.json()['data'] if res else None
+
+#     def historical_data(s,
+#                         instrument_token: str,
+#                         from_dt: datetime,
+#                         to_dt: datetime,
+#                         interval: str,
+#                         continuous=False,
+#                         oi=False):
+#         '''return historical candle records for a given instrument.'''
+
+#         url = f"{base_url}/instruments/historical/{instrument_token}/{interval}"
+
+#         payload = {
+#             "from": from_dt,
+#             "to": to_dt,
+#             "continuous": int(continuous),
+#             "oi": int(oi)
+#         }
+
+#         res = s.get(url, method='GET', params=payload)
+
+#         return res.json()['data']['candles'] if res else None
+
+#     def place_order(s,
+#                     variety,
+#                     exchange,
+#                     tradingsymbol,
+#                     transaction_type,
+#                     quantity,
+#                     product,
+#                     order_type,
+#                     price=None,
+#                     validity=None,
+#                     validity_ttl=None,
+#                     disclosed_quantity=None,
+#                     trigger_price=None,
+#                     iceberg_legs=None,
+#                     iceberg_quantity=None,
+#                     auction_number=None,
+#                     tag=None):
+#         '''Place an order of a particular variety'''
+#         base_url = 'https://api.kite.trade'
+#         url = f'{base_url}/orders/{variety}'
+
+#         params = locals()
+
+#         # del params['self']
+
+#         for k in list(params.keys()):
+#             if params[k] is None:
+#                 del params[k]
+
+#         res = s.post(url, data=params)
+        
+#         return res.json()['data']['order_id'] if res else None
+
+#     def modify_order(s,variety,
+#                      order_id,
+#                      quantity,
+#                      price):
+#         '''Modify an open order.'''
+#         base_url = 'https://api.kite.trade'
+#         url = f'{base_url}/orders/{variety}/{order_id}'
+
+#         params = locals()
+
+#         for k in list(params.keys()):
+#             if params[k] is None:
+#                 del (params[k])
+
+#         res = s.put(url,data=params)
+
+#         return res.json()['data']['order_id'] if res else None
+
+#     def cancel_order(s, variety, order_id):
+#         '''Cancel an order.'''
+#         base_url = 'https://api.kite.trade'
+#         url = f'{base_url}/orders/{variety}/{order_id}'
+#         res = s.delete(url)
+
+#         return res.json()['data']['order_id'] if res else None
+
+#     def orders(s):
+#         '''Get list of all orders for the day'''
+#         base_url = 'https://api.kite.trade'
+#         res = s.get(f'{base_url}/orders')
+
+#         return res.json()['data'] if res else None
+
+#     def order_history(s, order_id):
+#         '''Get history of individual orders'''
+#         base_url = 'https://api.kite.trade'
+#         url = f'{base_url}/orders/{order_id}'
+
+#         res = s.get(url)
+
+#         return res.json()['data'] if res else None
+
+#     def trades(s):
+#         '''Get the list of all executed trades for the day'''
+#         base_url = 'https://api.kite.trade'
+#         url = f'{base_url}/trades'
+
+#         res = s.get(url)
+
+#         return res.json()['data'] if res else None
+
+#     def order_trades(s, order_id):
+#         '''Get the the trades generated by an order'''
+#         base_url = 'https://api.kite.trade'
+#         url = f'{base_url}/orders/{order_id}/trades'
+#         res = s.get(url)
+
+#         return res.json()['data'] if res else None
+        
+class KiteApp:
     # Products
     PRODUCT_MIS = "MIS"
     PRODUCT_CNC = "CNC"
@@ -54,8 +333,6 @@ class kite:
     VARIETY_REGULAR = "regular"
     VARIETY_CO = "co"
     VARIETY_AMO = "amo"
-    VARIETY_ICEBERG = "iceberg"
-    VARIETY_AUCTION = "auction"
 
     # Transaction type
     TRANSACTION_TYPE_BUY = "BUY"
@@ -64,226 +341,128 @@ class kite:
     # Validity
     VALIDITY_DAY = "DAY"
     VALIDITY_IOC = "IOC"
-    VALIDITY_TTL = "TTL"
 
-    # Position Type
-    POSITION_TYPE_DAY = "day"
-    POSITION_TYPE_OVERNIGHT = "overnight"
+    # Exchanges
+    EXCHANGE_NSE = "NSE"
+    EXCHANGE_BSE = "BSE"
+    EXCHANGE_NFO = "NFO"
+    EXCHANGE_CDS = "CDS"
+    EXCHANGE_BFO = "BFO"
+    EXCHANGE_MCX = "MCX"
 
-    # Margins segments
-    MARGIN_EQUITY = "equity"
-    MARGIN_COMMODITY = "commodity"
+    def __init__(self, enctoken):
+        self.enctoken = enctoken
+        self.headers = {"Authorization": f"enctoken {self.enctoken}"}
+        self.session = requests.session()
+        self.root_url = "https://kite.zerodha.com/oms"
+        self.session.get(self.root_url, headers=self.headers)
 
-    # GTT order type
-    GTT_TYPE_OCO = "two-leg"
-    GTT_TYPE_SINGLE = "single"
+    def instruments(self, exchange=None):
+        data = self.session.get(f"https://api.kite.trade/instruments").text.split("\n")
+        Exchange = []
+        for i in data[1:-1]:
+            row = i.split(",")
+            if exchange is None or exchange == row[11]:
+                Exchange.append({'instrument_token': int(row[0]), 'exchange_token': row[1], 'tradingsymbol': row[2],
+                                 'name': row[3][1:-1], 'last_price': float(row[4]),
+                                 'expiry': dateutil.parser.parse(row[5]).date() if row[5] != "" else None,
+                                 'strike': float(row[6]), 'tick_size': float(row[7]), 'lot_size': int(row[8]),
+                                 'instrument_type': row[9], 'segment': row[10],
+                                 'exchange': row[11]})
+        return Exchange
 
-#     base_dir = Path(__file__).parent
-    base_url = 'https://api.kite.trade'
-    def __init__(self, enctoken=None):
-        return None
+    def historical_data(self, instrument_token, from_date, to_date, interval, continuous=False, oi=False):
+        params = {"from": from_date,
+                  "to": to_date,
+                  "interval": interval,
+                  "continuous": 1 if continuous else 0,
+                  "oi": 1 if oi else 0}
+        lst = self.session.get(
+            f"{self.root_url}/instruments/historical/{instrument_token}/{interval}", params=params,
+            headers=self.headers).json()["data"]["candles"]
+        records = []
+        for i in lst:
+            record = {"date": dateutil.parser.parse(i[0]), "open": i[1], "high": i[2], "low": i[3],
+                      "close": i[4], "volume": i[5],}
+            if len(i) == 7:
+                record["oi"] = i[6]
+            records.append(record)
+        return records
 
-    def instruments(s, exchange=None):
-        '''return a CSV dump of all tradable instruments'''
+    def margins(self):
+        margins = self.session.get(f"{self.root_url}/user/margins", headers=self.headers).json()["data"]
+        return margins
 
-        url = f'{base_url}/instruments'
+    def profile(self):
+        profile = self.session.get(f"{self.root_url}/user/profile", headers=self.headers).json()["data"]
+        return profile
 
-        if exchange:
-            url += f'/{exchange}'
+    def orders(self):
+        orders = self.session.get(f"{self.root_url}/orders", headers=self.headers).json()["data"]
+        return orders
 
-        res = s.get(url)
+    def order_history(self, order_id):
+        '''Get history of individual orders'''
+        url = f'{self.root_url}/orders/{order_id}'
 
-        if res:
-            return res.content
-
-    def quote(s, instruments: str | list | tuple | set):
-        '''Return the full market quotes - ohlc, OI, bid/ask etc'''
-        base_url = 'https://api.kite.trade'
-
-        if type(instruments) in (list, tuple, set) and len(instruments) > 500:
-            raise ValueError('Instruments length cannot exceed 500')
-
-        res = s.get(f"{base_url}/quote",params={'i': instruments})
+        res = self.session.get(url, headers=self.headers)
 
         return res.json()['data'] if res else None
 
-    def ohlc(s, instruments: str | list | tuple | set):
-        '''Returns ohlc and last traded price'''
-        base_url = 'https://api.kite.trade'
-
-        if type(instruments) in (list, tuple, set) and len(instruments) > 1000:
-            raise ValueError('Instruments length cannot exceed 1000')
-
-        res = s.get(f"{base_url}/quote/ohlc", params={'i': instruments})
-
+    def order_trades(self, order_id):
+        '''Get the the trades generated by an order'''
+        url = f'{self.root_url}/orders/{order_id}/trades'
+        res = self.session.get(url, headers=self.headers)
         return res.json()['data'] if res else None
 
-    def ltp(instruments,s):
+    def ltp(self, instruments):
         '''Returns the last traded price'''
 
         if type(instruments) in (list, tuple, set) and len(instruments) > 1000:
             raise ValueError('Instruments length cannot exceed 1000')
         base_url = 'https://api.kite.trade'
-        res = s.get(f"{base_url}/quote/ltp", params={'i': instruments[0]})
-        print(res.json()['data'][instruments[0]]['last_price'])
+        res = self.session.get(f"{self.root_url}/quote/ltp", headers={'i': instruments[0]})
+        print(res)
         print(type(res.json()['data'][instruments[0]]['last_price']))
         return res.json()['data'][instruments[0]]['last_price'] if res else None
+    
+    def positions(self):
+        positions = self.session.get(f"{self.root_url}/portfolio/positions", headers=self.headers).json()["data"]
+        return positions
 
-    def holdings(s):
-        '''Return the list of long term equity holdings'''
-        base_url = 'https://api.kite.trade'
-        res = s.get(f'{base_url}/portfolio/holdings')
-
-        return res.json()['data'] if res else None
-
-    def positions(s):
-        '''Retrieve the list of short term positions'''
-        base_url = 'https://api.kite.trade'
-        res = s.get(f'{base_url}/portfolio/positions')
-
-        return res.json()['data'] if res else None
-
-    def auctions(s,self):
-        '''Retrieve the list of auctions that are currently being held'''
-        base_url = 'https://api.kite.trade'
-        res = s.get(f'{base_url}/portfolio/auctions')
-
-        return res.json()['data'] if res else None
-
-    def margins(s, segment=None):
-        '''Returns funds, cash, and margin information for the user
-        for equity and commodity segments'''
-        base_url = 'https://api.kite.trade'
-
-        url = f'{base_url}/user/margins'
-
-        if segment:
-            url += f'/{segment}'
-        res = s.get(url)
-
-        return res.json()['data'] if res else None
-
-    def profile(s):
-        '''Retrieve the user profile'''
-        base_url = 'https://api.kite.trade'
-        res = s.get(f'{base_url}/user/profile')
-
-        return res.json()['data'] if res else None
-
-    def historical_data(s,
-                        instrument_token: str,
-                        from_dt: datetime,
-                        to_dt: datetime,
-                        interval: str,
-                        continuous=False,
-                        oi=False):
-        '''return historical candle records for a given instrument.'''
-
-        url = f"{base_url}/instruments/historical/{instrument_token}/{interval}"
-
-        payload = {
-            "from": from_dt,
-            "to": to_dt,
-            "continuous": int(continuous),
-            "oi": int(oi)
-        }
-
-        res = s.get(url, method='GET', params=payload)
-
-        return res.json()['data']['candles'] if res else None
-
-    def place_order(s,
-                    variety,
-                    exchange,
-                    tradingsymbol,
-                    transaction_type,
-                    quantity,
-                    product,
-                    order_type,
-                    price=None,
-                    validity=None,
-                    validity_ttl=None,
-                    disclosed_quantity=None,
-                    trigger_price=None,
-                    iceberg_legs=None,
-                    iceberg_quantity=None,
-                    auction_number=None,
-                    tag=None):
-        '''Place an order of a particular variety'''
-        base_url = 'https://api.kite.trade'
-        url = f'{base_url}/orders/{variety}'
-
+    def place_order(self, variety, exchange, tradingsymbol, transaction_type, quantity, product, order_type, price=None,
+                    validity=None, disclosed_quantity=None, trigger_price=None, squareoff=None, stoploss=None,
+                    trailing_stoploss=None, tag=None):
         params = locals()
+        del params["self"]
+        for k in list(params.keys()):
+            if params[k] is None:
+                del params[k]
+        order_id = self.session.post(f"{self.root_url}/orders/{variety}",
+                                     data=params, headers=self.headers).json()["data"]["order_id"]
+        return order_id
 
-        # del params['self']
-
+    def modify_order(self, variety, order_id, parent_order_id=None, quantity=None, price=None, order_type=None,
+                     trigger_price=None, validity=None, disclosed_quantity=None):
+        params = locals()
+        del params["self"]
         for k in list(params.keys()):
             if params[k] is None:
                 del params[k]
 
-        res = s.post(url, data=params)
-        
-        return res.json()['data']['order_id'] if res else None
+        order_id = self.session.put(f"{self.root_url}/orders/{variety}/{order_id}",
+                                    data=params, headers=self.headers).json()["data"][
+            "order_id"]
+        return order_id
 
-    def modify_order(s,variety,
-                     order_id,
-                     quantity,
-                     price):
-        '''Modify an open order.'''
-        base_url = 'https://api.kite.trade'
-        url = f'{base_url}/orders/{variety}/{order_id}'
+    def cancel_order(self, variety, order_id, parent_order_id=None):
+        order_id = self.session.delete(f"{self.root_url}/orders/{variety}/{order_id}",
+                                       data={"parent_order_id": parent_order_id} if parent_order_id else {},
+                                       headers=self.headers).json()["data"]["order_id"]
+        return order_id
 
-        params = locals()
 
-        for k in list(params.keys()):
-            if params[k] is None:
-                del (params[k])
 
-        res = s.put(url,data=params)
-
-        return res.json()['data']['order_id'] if res else None
-
-    def cancel_order(s, variety, order_id):
-        '''Cancel an order.'''
-        base_url = 'https://api.kite.trade'
-        url = f'{base_url}/orders/{variety}/{order_id}'
-        res = s.delete(url)
-
-        return res.json()['data']['order_id'] if res else None
-
-    def orders(s):
-        '''Get list of all orders for the day'''
-        base_url = 'https://api.kite.trade'
-        res = s.get(f'{base_url}/orders')
-
-        return res.json()['data'] if res else None
-
-    def order_history(s, order_id):
-        '''Get history of individual orders'''
-        base_url = 'https://api.kite.trade'
-        url = f'{base_url}/orders/{order_id}'
-
-        res = s.get(url)
-
-        return res.json()['data'] if res else None
-
-    def trades(s):
-        '''Get the list of all executed trades for the day'''
-        base_url = 'https://api.kite.trade'
-        url = f'{base_url}/trades'
-
-        res = s.get(url)
-
-        return res.json()['data'] if res else None
-
-    def order_trades(s, order_id):
-        '''Get the the trades generated by an order'''
-        base_url = 'https://api.kite.trade'
-        url = f'{base_url}/orders/{order_id}/trades'
-        res = s.get(url)
-
-        return res.json()['data'] if res else None
-        
 def order_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,price_opt_1,quantity,instru,fresh_position,leg,strike,contract,expiry,trade_id,sqr_off_order,buy_sell,retry_order,status,reject_count,cancel_count,sqr_order_id):
     kt_order_id_1 = ''
     s = s
@@ -337,7 +516,6 @@ def order_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,price_opt
     status = status
     reject_count = reject_count
     cancel_count = cancel_count
-    contract = contract
     COLUMN_NAMES=['current_signal','entry_time','exit_time','leg','instru','order_id','qty','price_when_order_placed','fresh_position','buy_sell','instrument_id','trading_symbol','modification_error','cancellation_error','rejection_error','multiple_sqr_off_error','order_pending_error','multi_sqr_off_error','executed','all_api_failed','leg1_sqr_off_error','leg1_fail_leg2_not_placed','entry_price','strike','contract','status','exit_price','expiry','trade_id','sqr_off_order','reject_count','cancel_count','sqr_order_id']
     df64=pd.DataFrame(columns=COLUMN_NAMES) 
     buy_sell = buy_sell
@@ -350,26 +528,17 @@ def order_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,price_opt
         print("entering while loop",datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
         if not kt_order_id_1 or not val_pending or status == "cancelled" or status == "rejected":
             try:
-                a = 'NFO:'+ str(symbol_opt_1)
-                instruments = [a]
-                if contract == "F":
-                    price = float(kite.ltp(instruments,s)) + 5
-                else:
-                    price = float(kite.ltp(instruments,s)) + 1
+                # a = 'NFO:'+ str(symbol_opt_1)
+                # instruments = [a]
+                # price = float(kite.ltp(instruments,s)) + 1
+                price_df = pd.DataFrame(s.historical_data(opt_id_1, fromm, fromm, "minute", continuous=False, oi=True))
+                price = price_df['close'].iloc[-1] + 1
                 print("current price ",price,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
             except Exception as e:
                 order_place_fail = 1
                 print("Failed to get LTP",e,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
-                if contract == "F":
-                    price = price_opt_1 + 10
-                else:
-                    price = price_opt_1 + 2
-            if contract == "F":
-                kx = 0.1
-            else:
-                kx = 1
-                
-            if abs(((price - price_opt_1) / price_opt_1) * 100) < kx:
+                price = price_opt_1 + 2
+            if abs(((price - price_opt_1) / price_opt_1) * 100) > 25:
                 ord_plc = False 
                 print("price has crossed 25% band ",price," ",price_opt_1,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                 status = ""
@@ -398,7 +567,7 @@ def order_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,price_opt
                     gfile.Upload()
                 break
             try:
-                margins_data = kite.margins(s)
+                margins_data = s.margins()
                 avl_margin_before_trade = 0
                 # for i in margins_data:
                     # print(i)
@@ -409,7 +578,7 @@ def order_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,price_opt
                 print("Failed to get margin",e,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
             try:
                 position_data =''
-                position_data = kite.positions(s)
+                position_data = s.positions()
                 position_datafetch_initial = 0
                 for i in position_data['day']:
                     if i['instrument_token'] == opt_id_1:
@@ -420,7 +589,7 @@ def order_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,price_opt
                 position_datafetch_initial_check = 0
                 print("Failed to get position_data",e,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
             try:
-                kt_order_id_1 = kite.place_order(s,variety=kite.VARIETY_REGULAR,exchange=kite.EXCHANGE_NFO,tradingsymbol=symbol_opt_1,transaction_type=buy_sell,quantity=quantity,product=kite.PRODUCT_NRML,order_type=kite.ORDER_TYPE_LIMIT,price=price)
+                kt_order_id_1 = s.place_order(variety=KiteApp.VARIETY_AMO,exchange=KiteApp.EXCHANGE_NFO,tradingsymbol=symbol_opt_1,transaction_type=buy_sell,quantity=quantity,product=KiteApp.PRODUCT_NRML,order_type=KiteApp.ORDER_TYPE_LIMIT,price=price)
     #             kt_order_id_1 = kite.place_order(kite.VARIETY_REGULAR,kite.EXCHANGE_NFO,symbol_opt_1,kite.TRANSACTION_TYPE_+signal,15,kite.PRODUCT_NRML,kite.ORDER_TYPE_LIMIT,price=price)
                 order_place_fail = 0
                 print("placed order",kt_order_id_1," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
@@ -431,7 +600,7 @@ def order_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,price_opt
         if kt_order_id_1:
             time.sleep(3)
             try:
-                ord_hist = kite.order_history(s,order_id=kt_order_id_1)[-1]
+                ord_hist = s.order_history(order_id=kt_order_id_1)[-1]
                 print("printing order history",kt_order_id_1," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                 order_history_fail = 0
                 if ord_hist['status'] == 'COMPLETE':
@@ -799,7 +968,7 @@ def order_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,price_opt
 #     #                         order_place_fail = 1
 #                             price = 0
 #                             print("Failed to get LTP for modifying the order", e)
-#                         while order_modify and price and not (abs(((price - price_opt_1) / price_opt_1) * 100) < 1):
+#                         while order_modify and price and not (abs(((price - price_opt_1) / price_opt_1) * 100) > 25):
 #                             try:
 #                                 if not modify_order_id or not modify_val_pending:
 #                                     price = price + 1
@@ -837,7 +1006,7 @@ def order_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,price_opt
 #                                 order_modify = False
 #                                 modification_error = 1
 #                                 print("Failed to modify order",e)
-#                     elif ord_hist['exchange_timestamp'] and (modify_counter >= 20 or not (abs(((price - price_opt_1) / price_opt_1) * 100) < 1)):
+#                     elif ord_hist['exchange_timestamp'] and (modify_counter >= 20 or not (abs(((price - price_opt_1) / price_opt_1) * 100) > 25)):
 #                         order_cancel = True
 #                         cancel_val_pending = 0
 #                         cancel_order_id= 0
@@ -916,7 +1085,7 @@ def order_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,price_opt
                 try:
                     print("check trades"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                     order_trade_data = ''
-                    order_trade_data = kite.order_trades(s,kt_order_id_1)
+                    order_trade_data = s.order_trades(kt_order_id_1)
                     order_trade_datafetch_fail = 0
                     for i in order_trade_data:
                         if i['order_id'] == kt_order_id_1:
@@ -989,7 +1158,7 @@ def order_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,price_opt
                     try:
                         print("checking orders"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                         ord_data = ''
-                        ord_data = kite.orders(s)
+                        ord_data = s.orders()
                         order_datafetch_fail = 0
                         for i in ord_data:
                             if i['order_id'] == kt_order_id_1 and i['transaction_type'] == buy_sell:
@@ -1332,7 +1501,7 @@ def order_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,price_opt
                                     gfile.Upload()
                                 break
                             position_data =''
-                            position_data = kite.positions(s)
+                            position_data = s.positions()
                             position_datafetch_fail = 0
                             for i in position_data['day']:
                                 if position_datafetch_initial_check and i['instrument_token'] == opt_id_1 and (i['quantity'] != position_datafetch_initial ):
@@ -1431,7 +1600,7 @@ def order_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,price_opt
                                         gfile.SetContentFile("order_manage.txt")
                                         gfile.Upload()
                                     break
-                                margins_data = kite.margins(s)
+                                margins_data = s.margins()
                                 margins_datafetch_fail = 0
                                 # for i in margins_data:
                                 if avl_margin_before_trade and abs(avl_margin_before_trade - margins_data['equity']['available']['live_balance']) > 50:
@@ -1530,7 +1699,7 @@ def order_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,price_opt
             try:
                 print("Failed to order id or order place fail so check orders"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                 ord_data = ''
-                ord_data = kite.orders(s)
+                ord_data = s.orders()
                 order_datafetch_fail = 0
                 order_datafetch_found = 0
                 for i in ord_data:
@@ -1868,7 +2037,7 @@ def order_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,price_opt
                                 gfile.Upload()
                             break
                         position_data =''
-                        position_data = kite.positions(s)
+                        position_data = s.positions()
                         position_datafetch_fail = 0
                         position_datafetch_found = 0
                         for i in position_data['day']:
@@ -1966,7 +2135,7 @@ def order_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,price_opt
                                         gfile.SetContentFile("order_manage.txt")
                                         gfile.Upload()
                                     break
-                                margins_data = kite.margins(s)
+                                margins_data = s.margins()
                                 margins_datafetch_fail = 0
                                 margins_datafetch_found = 0
                                 # for i in margins_data:
@@ -2091,39 +2260,28 @@ def order_modify(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,price_op
         try:
             a = 'NFO:'+ str(symbol_opt_1)
             instruments = [a]
-            if contract == "F":
-                price = float(kite.ltp(instruments,s)) + 5
-            else:
-                price = float(kite.ltp(instruments,s)) + 1
+            # price = float(kite.ltp(instruments,s)) + 1
+            price_df = pd.DataFrame(s.historical_data(opt_id_1, fromm, fromm, "minute", continuous=False, oi=True))
+            price = price_df['close'].iloc[-1] + 1
         except Exception as e:
             order_place_fail = 1
             print("Failed to get LTP"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
             print(str(e), file=sys.stderr)
-            if contract == "F":
-                price = price_opt_1 + 10
-            else:
-                price = price_opt_1 + 2
-        if contract == "F":
-            kx = 0.1
-        else:
-            kx = 1
-        if abs(((price - price_opt_1) / price_opt_1) * 100) < kx:
+            price = price_opt_1 + 2
+        if abs(((price - price_opt_1) / price_opt_1) * 100) > 25:
             print("price moved beyond 25% so break"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
             ord_plc = False 
             break
         try:
-            if contract == "F":
-                price = price + 5
-            else:
-                price = price + 1
-            modify_order_id = kite.modify_order(s,kite.VARIETY_REGULAR, kt_order_id_1, quantity,price=price) 
+            price = price + 1
+            modify_order_id = s.modify_order(KiteApp.VARIETY_REGULAR, kt_order_id_1, quantity,price=price) 
             if modify_order_id:
                 print("order modified"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                 kt_order_id_1 = modify_order_id
             time.sleep(3)
             try:
                 modify_ord_hist = ''
-                modify_ord_hist = kite.order_history(s,order_id=kt_order_id_1)[-1]
+                modify_ord_hist = s.order_history(order_id=kt_order_id_1)[-1]
                 if modify_ord_hist['status'] == 'MODIFIED':
                     print("order modified"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                     ord_plc = False
@@ -2173,39 +2331,28 @@ def order_modify_multiple(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1
         try:
             a = 'NFO:'+ str(symbol_opt_1)
             instruments = [a]
-            if contract == "F":
-                price = float(kite.ltp(instruments,s)) + 5
-            else:
-                price = float(kite.ltp(instruments,s)) + 1
+            # price = float(kite.ltp(instruments,s)) + 1
+            price_df = pd.DataFrame(s.historical_data(opt_id_1, fromm, fromm, "minute", continuous=False, oi=True))
+            price = price_df['close'].iloc[-1] + 1
         except Exception as e:
             order_place_fail = 1
             print("Failed to get LTP"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
             print(str(e), file=sys.stderr)
-            if contract == "F":
-                price = price_opt_1 + 10
-            else:
-                price = price_opt_1 + 2
-        if contract == "F":
-            kx = 0.1
-        else:
-            kx = 1
-        if abs(((price - price_opt_1) / price_opt_1) * 100) < kx:
+            price = price_opt_1 + 2
+        if abs(((price - price_opt_1) / price_opt_1) * 100) > 25:
             print("price moved beyond 25% so break"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
             ord_plc = False 
             break
         try:
-            if contract == "F":
-                price = price + 5
-            else:
-                price = price + 1
-            modify_order_id = kite.modify_order(s,kite.VARIETY_REGULAR, kt_order_id_1, quantity,price=price) 
+            price = price + 1
+            modify_order_id = s.modify_order(KiteApp.VARIETY_REGULAR, kt_order_id_1, quantity,price=price) 
             if modify_order_id:
                 print("order modified"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                 kt_order_id_1 = modify_order_id
             time.sleep(3)
             try:
                 modify_ord_hist = ''
-                modify_ord_hist = kite.order_history(s,order_id=kt_order_id_1)[-1]
+                modify_ord_hist = s.order_history(order_id=kt_order_id_1)[-1]
                 if modify_ord_hist['status'] == 'MODIFIED':
                     ord_plc = False
                     print("order modified"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
@@ -2233,7 +2380,7 @@ def check_order_history(s,kt_order_id_1,opt_id_1,fresh_position,status):
         print("check order history"," ",kt_order_id_1," ",opt_id_1," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
         status = status
         ord_hist = ''
-        ord_hist = kite.order_history(s,order_id=kt_order_id_1)[-1]
+        ord_hist = s.order_history(order_id=kt_order_id_1)[-1]
         # ord_hist1 = kite.order_history(s,order_id=kt_order_id_1)
         print(ord_hist," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
         # print(ord_hist1," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
@@ -2256,7 +2403,7 @@ def check_order_history(s,kt_order_id_1,opt_id_1,fresh_position,status):
         if not ord_hist or order_history_fail:
             try:
                 order_trade_data = ''
-                order_trade_data = kite.order_trades(kt_order_id_1)
+                order_trade_data = s.order_trades(kt_order_id_1)
                 order_trade_datafetch_fail = 0
                 for i in order_trade_data:
                     if i['order_id'] == kt_order_id_1:
@@ -2270,7 +2417,7 @@ def check_order_history(s,kt_order_id_1,opt_id_1,fresh_position,status):
                 if not order_trade_data or order_trade_datafetch_fail:            
                     try:
                         ord_data = ''
-                        ord_data = kite.orders(s)
+                        ord_data = s.orders()
                         order_datafetch_fail = 0
                         for i in ord_data:
                             if i['order_id'] == kt_order_id_1 :
@@ -2322,10 +2469,10 @@ def check_order_history(s,kt_order_id_1,opt_id_1,fresh_position,status):
 def order_cancel_place(s,kt_order_id_1,status):
     status = status
     print("trying to cancel the order"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
-    cancel_the_order = kite.cancel_order(s,kite.VARIETY_REGULAR, kt_order_id_1) 
+    cancel_the_order = s.cancel_order(KiteApp.VARIETY_REGULAR, kt_order_id_1) 
     if cancel_the_order:
         try:
-            cancel_ord_hist = kite.order_history(s,cancel_the_order)[-1]
+            cancel_ord_hist = s.order_history(cancel_the_order)[-1]
             print(cancel_ord_hist, datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
             if cancel_ord_hist['status'] == 'CANCELLED':
                 print("order cancelled"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
@@ -2389,22 +2536,18 @@ def order_place_sqr_complete(s,file_list,drive,current_signal,opt_id_1,symbol_op
             no_ltp = 1
             a = 'NFO:'+ str(symbol_opt_1)
             instruments = [a]
-            if contract == "F":
-                price = float(kite.ltp(instruments,s)) + 5
-            else:
-                price = float(kite.ltp(instruments,s)) + 1
+            # price = float(kite.ltp(instruments,s)) + 1
+            price_df = pd.DataFrame(s.historical_data(opt_id_1, fromm, fromm, "minute", continuous=False, oi=True))
+            price = price_df['close'].iloc[-1] + 1
             print("current price ",price,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
         except Exception as e:
             order_place_fail = 1
             print("Failed to get LTP",e," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
             #place market order
-            if contract == "F":
-                price = price_opt_1 + 10
-            else:
-                price = price_opt_1 + 2
+            price = price_opt_1 + 2
             no_ltp = 1
         try:
-            margins_data = kite.margins(s)
+            margins_data = s.margins()
             avl_margin_before_trade = 0
             # for i in margins_data:
             avl_margin_before_trade = margins_data['equity']['available']['live_balance']
@@ -2414,7 +2557,7 @@ def order_place_sqr_complete(s,file_list,drive,current_signal,opt_id_1,symbol_op
             print("Failed to get margin",e," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
         try:
             position_data =''
-            position_data = kite.positions(s)
+            position_data = s.positions()
             position_datafetch_initial = 0
             for i in position_data['day']:
                 if i['instrument_token'] == opt_id_1:
@@ -2426,9 +2569,9 @@ def order_place_sqr_complete(s,file_list,drive,current_signal,opt_id_1,symbol_op
             print("Failed to get position_data",e,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
         try:
             if no_ltp:
-                kt_order_id_1 = kite.place_order(s,variety=kite.VARIETY_REGULAR,exchange=kite.EXCHANGE_NFO,tradingsymbol=symbol_opt_1,transaction_type=buy_sell,quantity=quantity,product=kite.PRODUCT_NRML,order_type=kite.ORDER_TYPE_MARKET,price=price)
+                kt_order_id_1 = s.place_order(variety=KiteApp.VARIETY_REGULAR,exchange=KiteApp.EXCHANGE_NFO,tradingsymbol=symbol_opt_1,transaction_type=buy_sell,quantity=quantity,product=KiteApp.PRODUCT_NRML,order_type=KiteApp.ORDER_TYPE_MARKET,price=price)
             else:
-                kt_order_id_1 = kite.place_order(s,variety=kite.VARIETY_REGULAR,exchange=kite.EXCHANGE_NFO,tradingsymbol=symbol_opt_1,transaction_type=buy_sell,quantity=quantity,product=kite.PRODUCT_NRML,order_type=kite.ORDER_TYPE_LIMIT,price=price)
+                kt_order_id_1 = s.place_order(s,variety=KiteApp.VARIETY_REGULAR,exchange=KiteApp.EXCHANGE_NFO,tradingsymbol=symbol_opt_1,transaction_type=buy_sell,quantity=quantity,product=KiteApp.PRODUCT_NRML,order_type=KiteApp.ORDER_TYPE_LIMIT,price=price)
 #             kt_order_id_1 = kite.place_order(kite.VARIETY_REGULAR,kite.EXCHANGE_NFO,symbol_opt_1,kite.TRANSACTION_TYPE_+signal,15,kite.PRODUCT_NRML,kite.ORDER_TYPE_LIMIT,price=price)
             order_place_fail = 0
             print("placed order ",kt_order_id_1,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
@@ -2438,7 +2581,7 @@ def order_place_sqr_complete(s,file_list,drive,current_signal,opt_id_1,symbol_op
         if kt_order_id_1:
             time.sleep(3)
             try:
-                ord_hist = kite.order_history(s,order_id=kt_order_id_1)[-1]
+                ord_hist = s.order_history(order_id=kt_order_id_1)[-1]
                 print("printing order history",kt_order_id_1," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                 order_history_fail = 0
                 if ord_hist['status'] == 'COMPLETE':
@@ -2645,7 +2788,7 @@ def order_place_sqr_complete(s,file_list,drive,current_signal,opt_id_1,symbol_op
                 try:
                     print("checking trades"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                     order_trade_data = ''
-                    order_trade_data = kite.order_trades(kt_order_id_1)
+                    order_trade_data = s.order_trades(kt_order_id_1)
                     order_trade_datafetch_fail = 0
                     for i in order_trade_data:
                         if i['order_id'] == kt_order_id_1:
@@ -2702,7 +2845,7 @@ def order_place_sqr_complete(s,file_list,drive,current_signal,opt_id_1,symbol_op
                     try:
                         print("checking order "," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                         ord_data = ''
-                        ord_data = kite.orders(s)
+                        ord_data = s.orders()
                         order_datafetch_fail = 0
                         for i in ord_data:
                             if i['order_id'] == kt_order_id_1 and i['transaction_type'] == buy_sell:
@@ -2913,7 +3056,7 @@ def order_place_sqr_complete(s,file_list,drive,current_signal,opt_id_1,symbol_op
                                 all_api_failed = 1
                                 break
                             position_data =''
-                            position_data = kite.positions(s)
+                            position_data = s.positions()
                             position_datafetch_fail = 0
                             for i in position_data['day']:
                                 if position_datafetch_initial_check and i['instrument_token'] == opt_id_1 and (i['quantity'] != position_datafetch_initial ):
@@ -2973,7 +3116,7 @@ def order_place_sqr_complete(s,file_list,drive,current_signal,opt_id_1,symbol_op
                                 if avl_margin_before_trade  < 1:
                                     all_api_failed = 1
                                     ord_plc = False
-                                margins_data = kite.margins(s)
+                                margins_data = s.margins()
                                 margins_datafetch_fail = 0
                                 # for i in margins_data:
                                 if avl_margin_before_trade and abs(avl_margin_before_trade - margins_data['equity']['available']['live_balance']) > 50:
@@ -3070,7 +3213,7 @@ def order_place_sqr_complete(s,file_list,drive,current_signal,opt_id_1,symbol_op
             try:
                 print("no order id checking orders "," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                 ord_data = ''
-                ord_data = kite.orders(s)
+                ord_data = s.orders()
                 order_datafetch_fail = 0
                 for i in ord_data:
                     if i['instrument_token'] == opt_id_1 :
@@ -3273,7 +3416,7 @@ def order_place_sqr_complete(s,file_list,drive,current_signal,opt_id_1,symbol_op
                         all_api_failed = 1
                         break
                     position_data =''
-                    position_data = kite.positions(s)
+                    position_data = s.positions()
                     position_datafetch_fail = 0
                     for i in position_data['day']:
                         if position_datafetch_initial_check and i['instrument_token'] == opt_id_1 and (i['quantity'] != position_datafetch_initial ):
@@ -3333,7 +3476,7 @@ def order_place_sqr_complete(s,file_list,drive,current_signal,opt_id_1,symbol_op
                         if avl_margin_before_trade  < 1:
                             all_api_failed = 1
                             ord_plc = False
-                        margins_data = kite.margins(s)
+                        margins_data = s.margins()
                         margins_datafetch_fail = 0
                         # for i in margins_data:
                         if avl_margin_before_trade and abs(avl_margin_before_trade - margins_data['equity']['available']['live_balance']) > 50:
@@ -3436,17 +3579,16 @@ def order_multiple_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,
         try:
             a = 'NFO:'+ str(symbol_opt_1)
             instruments = [a]
-            if contract == "F":
-                price = float(kite.ltp(instruments,s)) + 5
-            else:
-                price = float(kite.ltp(instruments,s)) + 1
+            # price = float(kite.ltp(instruments,s)) + 1
+            price_df = pd.DataFrame(s.historical_data(opt_id_1, fromm, fromm, "minute", continuous=False, oi=True))
+            price = price_df['close'].iloc[-1] + 1
             print("current price ",price,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
         except Exception as e:
             order_place_fail = 1
             print("Failed to get LTP",e,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
             break
         try:
-            margins_data = kite.margins(s)
+            margins_data = s.margins()
             avl_margin_before_trade = 0
             # for i in margins_data:
             avl_margin_before_trade = margins_data['equity']['available']['live_balance']
@@ -3456,7 +3598,7 @@ def order_multiple_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,
             print("Failed to get margin",e,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
         try:
             position_data =''
-            position_data = kite.positions(s)
+            position_data = s.positions()
             position_datafetch_initial = 0
             for i in position_data['day']:
                 if i['instrument_token'] == opt_id_1:
@@ -3467,7 +3609,7 @@ def order_multiple_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,
             position_datafetch_initial_check = 0
             print("Failed to get position_data",e,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
         try:
-            kt_order_id_1 = kite.place_order(s,variety=kite.VARIETY_REGULAR,exchange=kite.EXCHANGE_NFO,tradingsymbol=symbol_opt_1,transaction_type=buy_sell,quantity=quantity,product=kite.PRODUCT_NRML,order_type=kite.ORDER_TYPE_LIMIT,price=price)
+            kt_order_id_1 = s.place_order(variety=KiteApp.VARIETY_REGULAR,exchange=KiteApp.EXCHANGE_NFO,tradingsymbol=symbol_opt_1,transaction_type=buy_sell,quantity=quantity,product=KiteApp.PRODUCT_NRML,order_type=KiteApp.ORDER_TYPE_LIMIT,price=price)
             order_place_fail = 0
             print("placed order",kt_order_id_1,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
         except Exception as e:
@@ -3476,7 +3618,7 @@ def order_multiple_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,
     if kt_order_id_1:
         time.sleep(3)
         try:
-            ord_hist = kite.order_history(s,order_id=kt_order_id_1)[-1]
+            ord_hist = s.order_history(order_id=kt_order_id_1)[-1]
             print("printing order history",kt_order_id_1,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
             order_history_fail = 0
             if ord_hist['status'] == 'COMPLETE':
@@ -3510,7 +3652,7 @@ def order_multiple_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,
             try:
                 print("check trades"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                 order_trade_data = ''
-                order_trade_data = kite.order_trades(s,kt_order_id_1)
+                order_trade_data = s.order_trades(kt_order_id_1)
                 order_trade_datafetch_fail = 0
                 for i in order_trade_data:
                     if i['order_id'] == kt_order_id_1:
@@ -3524,7 +3666,7 @@ def order_multiple_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,
                 try:
                     print("check orders"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                     ord_data = ''
-                    ord_data = kite.orders(s)
+                    ord_data = s.orders()
                     order_datafetch_fail = 0
                     for i in ord_data:
                         if i['order_id'] == kt_order_id_1 and i['transaction_type'] == buy_sell:
@@ -3560,7 +3702,7 @@ def order_multiple_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,
                             all_api_failed = 1
                             ord_plc = False
                         position_data =''
-                        position_data = kite.positions(s)
+                        position_data = s.positions()
                         position_datafetch_fail = 0
                         for i in position_data['day']:
                             if position_datafetch_initial_check and i['instrument_token'] == opt_id_1 and (i['quantity'] != position_datafetch_initial ):
@@ -3578,7 +3720,7 @@ def order_multiple_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,
                             if avl_margin_before_trade  < 1:
                                 all_api_failed = 1
                                 ord_plc = False
-                            margins_data = kite.margins(s)
+                            margins_data = s.margins()
                             margins_datafetch_fail = 0
                             # for i in margins_data:
                             if avl_margin_before_trade and abs(avl_margin_before_trade - margins_data['equity']['available']['live_balance']) > 50:
@@ -3593,7 +3735,7 @@ def order_multiple_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,
         try:
             print("checking orders"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
             ord_data = ''
-            ord_data = kite.orders(s)
+            ord_data = s.orders()
             order_datafetch_fail = 0
             for i in ord_data:
                 if i['order_id'] == kt_order_id_1 and i['transaction_type'] == buy_sell:
@@ -3629,7 +3771,7 @@ def order_multiple_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,
                     all_api_failed = 1
                     ord_plc = False
                 position_data =''
-                position_data = kite.positions(s)
+                position_data = s.positions()
                 position_datafetch_fail = 0
                 for i in position_data['day']:
                     if position_datafetch_initial_check and i['instrument_token'] == opt_id_1 and (i['quantity'] != position_datafetch_initial ):
@@ -3646,7 +3788,7 @@ def order_multiple_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,
                     if avl_margin_before_trade  < 1:
                         all_api_failed = 1
                         ord_plc = False
-                    margins_data = kite.margins(s)
+                    margins_data = s.margins()
                     margins_datafetch_fail = 0
                     # for i in margins_data:
                     if avl_margin_before_trade and abs(avl_margin_before_trade - margins_data['equity']['available']['live_balance']) > 50:
@@ -3675,39 +3817,27 @@ def order_modify_complete(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1
         try:
             a = 'NFO:'+ str(symbol_opt_1)
             instruments = [a]
-            if contract == "F":
-                price = float(kite.ltp(instruments,s)) + 5
-            else:
-                price = float(kite.ltp(instruments,s)) + 1
+            # price = float(kite.ltp(instruments,s)) + 1
+            price_df = pd.DataFrame(s.historical_data(opt_id_1, fromm, fromm, "minute", continuous=False, oi=True))
+            price = price_df['close'].iloc[-1] + 1
             print("current price ",price,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
         except Exception as e:
             order_place_fail = 1
             print("Failed to get LTP",e,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
-            if contract == "F":
-                price = price_opt_1 + 2
-            else:
-                price = price_opt_1 + 2
-        if contract == "F":
-            kx = 0.1
-        else:
-            kx = 1
-
-        if abs(((price - price_opt_1) / price_opt_1) * 100) < kx:
+            price = price_opt_1 + 2
+        if abs(((price - price_opt_1) / price_opt_1) * 100) > 25:
             print("price has crossed 25% band ",price," ",price_opt_1,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
             ord_plc = False 
             break
         try:
-            if contract == "F":
-                price = price + 5
-            else:
-                price = price + 1
-            modify_order_id = kite.modify_order(s,kite.VARIETY_REGULAR, kt_order_id_1, quantity,price=price) 
+            price = price + 1
+            modify_order_id = s.modify_order(KiteApp.VARIETY_REGULAR, kt_order_id_1, quantity,price=price) 
             if modify_order_id:
                 kt_order_id_1 = modify_order_id
             time.sleep(3)
             try:
                 modify_ord_hist = ''
-                modify_ord_hist = kite.order_history(s,order_id=kt_order_id_1)[-1]
+                modify_ord_hist = s.order_history(order_id=kt_order_id_1)[-1]
                 if modify_ord_hist['status'] == 'MODIFIED':
                     print("order modified"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                     ord_plc = False
@@ -3792,25 +3922,20 @@ def order_place_manage(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,pr
             try:
                 a = 'NFO:'+ str(symbol_opt_1)
                 instruments = [a]
-                if contract == "F":
-                    price = float(kite.ltp(instruments,s)) + 5
-                else:
-                    price = float(kite.ltp(instruments,s)) + 1
-
+                # price = float(kite.ltp(instruments,s)) + 1
+                price_df = pd.DataFrame(s.historical_data(opt_id_1, fromm, fromm, "minute", continuous=False, oi=True))
+                price = price_df['close'].iloc[-1] + 1
                 print("current price ",price,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
             except Exception as e:
                 order_place_fail = 1
                 print("Failed to get LTP",e,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
-                if contract == "F":
-                    price = price_opt_1 + 10
-                else:
-                    price = price_opt_1 + 2
-            if abs(((price - price_opt_1) / price_opt_1) * 100) < 1:
+                price = price_opt_1 + 2
+            if abs(((price - price_opt_1) / price_opt_1) * 100) > 25:
                 print("price has crossed 25% band ",price," ",price_opt_1,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                 ord_plc = False 
                 break
             try:
-                margins_data = kite.margins(s)
+                margins_data = s.margins()
                 avl_margin_before_trade = 0
                 # for i in margins_data:
                     # print(i)
@@ -3821,7 +3946,7 @@ def order_place_manage(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,pr
                 print("Failed to get margin",e,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
             try:
                 position_data =''
-                position_data = kite.positions(s)
+                position_data = s.positions()
                 position_datafetch_initial = 0
                 for i in position_data['day']:
                     if i['instrument_token'] == opt_id_1:
@@ -3832,7 +3957,7 @@ def order_place_manage(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,pr
                 position_datafetch_initial_check = 0
                 print("Failed to get position_data",e,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
             try:
-                kt_order_id_1 = kite.place_order(s,variety=kite.VARIETY_REGULAR,exchange=kite.EXCHANGE_NFO,tradingsymbol=symbol_opt_1,transaction_type=buy_sell,quantity=quantity,product=kite.PRODUCT_NRML,order_type=kite.ORDER_TYPE_LIMIT,price=price)
+                kt_order_id_1 = s.place_order(variety=KiteApp.VARIETY_REGULAR,exchange=KiteApp.EXCHANGE_NFO,tradingsymbol=symbol_opt_1,transaction_type=buy_sell,quantity=quantity,product=KiteApp.PRODUCT_NRML,order_type=KiteApp.ORDER_TYPE_LIMIT,price=price)
     #             kt_order_id_1 = kite.place_order(kite.VARIETY_REGULAR,kite.EXCHANGE_NFO,symbol_opt_1,kite.TRANSACTION_TYPE_+signal,15,kite.PRODUCT_NRML,kite.ORDER_TYPE_LIMIT,price=price)
                 order_place_fail = 0
                 print("placed order",kt_order_id_1,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
@@ -3842,7 +3967,7 @@ def order_place_manage(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,pr
         if kt_order_id_1:
             time.sleep(3)
             try:
-                ord_hist = kite.order_history(s,order_id=kt_order_id_1)[-1]
+                ord_hist = s.order_history(order_id=kt_order_id_1)[-1]
                 print("printing order history",kt_order_id_1,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                 order_history_fail = 0
                 if ord_hist['status'] == 'COMPLETE':
@@ -4081,7 +4206,7 @@ def order_place_manage(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,pr
                 try:
                     print("check trades"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                     order_trade_data = ''
-                    order_trade_data = kite.order_trades(s,kt_order_id_1)
+                    order_trade_data = s.order_trades(kt_order_id_1)
                     order_trade_datafetch_fail = 0
                     for i in order_trade_data:
                         if i['order_id'] == kt_order_id_1:
@@ -4150,7 +4275,7 @@ def order_place_manage(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,pr
                     try:
                         print("checking orders"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                         ord_data = ''
-                        ord_data = kite.orders(s)
+                        ord_data = s.orders()
                         order_datafetch_fail = 0
                         for i in ord_data:
                             if i['order_id'] == kt_order_id_1 and i['transaction_type'] == buy_sell:
@@ -4390,7 +4515,7 @@ def order_place_manage(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,pr
                                 all_api_failed = 1
                                 break
                             position_data =''
-                            position_data = kite.positions(s)
+                            position_data = s.positions()
                             position_datafetch_fail = 0
                             for i in position_data['day']:
                                 if position_datafetch_initial_check and i['instrument_token'] == opt_id_1 and (i['quantity'] != position_datafetch_initial ):
@@ -4460,7 +4585,7 @@ def order_place_manage(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,pr
                                 if avl_margin_before_trade  < 1:
                                     all_api_failed = 1
                                     break
-                                margins_data = kite.margins(s)
+                                margins_data = s.margins()
                                 margins_datafetch_fail = 0
                                 if avl_margin_before_trade and abs(avl_margin_before_trade - margins_data['equity']['available']['live_balance']) > 50:
                                     print("order executed"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
@@ -4527,7 +4652,7 @@ def order_place_manage(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,pr
             try:
                 print("Failed to get order id or order place fail so check orders"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                 ord_data = ''
-                ord_data = kite.orders(s)
+                ord_data = s.orders()
                 order_datafetch_fail = 0
                 for i in ord_data:
                     if i['instrument_token'] == opt_id_1 and i['transaction_type'] == buy_sell:
@@ -4768,7 +4893,7 @@ def order_place_manage(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,pr
                             all_api_failed = 1
                             break
                         position_data =''
-                        position_data = kite.positions(s)
+                        position_data = s.positions()
                         position_datafetch_fail = 0
                         for i in position_data['day']:
                             if position_datafetch_initial_check and i['instrument_token'] == opt_id_1 and (i['quantity'] != position_datafetch_initial ):
@@ -4837,7 +4962,7 @@ def order_place_manage(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,pr
                                 if avl_margin_before_trade  < 1:
                                     all_api_failed = 1
                                     break
-                                margins_data = kite.margins(s)
+                                margins_data = s.margins()
                                 margins_datafetch_fail = 0
                                 if avl_margin_before_trade and abs(avl_margin_before_trade - margins_data['equity']['available']['live_balance']) > 50:
                                     print("order executed"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
