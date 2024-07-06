@@ -438,6 +438,7 @@ class KiteApp:
         for k in list(params.keys()):
             if params[k] is None:
                 del params[k]
+        print("current price ",params," ", fromm,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
         order_id = self.session.post(f"{self.root_url}/orders/{variety}",
                                      data=params, headers=self.headers).json()["data"]["order_id"]
         return order_id
@@ -533,7 +534,7 @@ def order_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,price_opt
                 # price = float(kite.ltp(instruments,s)) + 1
                 price_df = pd.DataFrame(s.historical_data(opt_id_1, fromm, fromm, "minute", continuous=False, oi=True))
                 price = price_df['close'].iloc[-1] + 1
-                print("current price ",price,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
+                print("current price ",price," ", fromm,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
             except Exception as e:
                 order_place_fail = 1
                 print("Failed to get LTP",e,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
@@ -589,7 +590,8 @@ def order_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,price_opt
                 position_datafetch_initial_check = 0
                 print("Failed to get position_data",e,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
             try:
-                kt_order_id_1 = s.place_order(variety=KiteApp.VARIETY_AMO,exchange=KiteApp.EXCHANGE_NFO,tradingsymbol=symbol_opt_1,transaction_type=buy_sell,quantity=quantity,product=KiteApp.PRODUCT_NRML,order_type=KiteApp.ORDER_TYPE_LIMIT,price=price)
+                print("order being placed at price ",price," ", fromm,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
+                kt_order_id_1 = s.place_order(variety=KiteApp.VARIETY_REGULAR,exchange=KiteApp.EXCHANGE_NFO,tradingsymbol=symbol_opt_1,transaction_type=buy_sell,quantity=quantity,product=KiteApp.PRODUCT_NRML,order_type=KiteApp.ORDER_TYPE_LIMIT,price=price)
     #             kt_order_id_1 = kite.place_order(kite.VARIETY_REGULAR,kite.EXCHANGE_NFO,symbol_opt_1,kite.TRANSACTION_TYPE_+signal,15,kite.PRODUCT_NRML,kite.ORDER_TYPE_LIMIT,price=price)
                 order_place_fail = 0
                 print("placed order",kt_order_id_1," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
