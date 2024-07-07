@@ -1,4 +1,5 @@
 from datetime import datetime,date, timedelta
+import math
 import numpy as np
 import pandas_ta as ta
 from requests import Session
@@ -66,7 +67,7 @@ gauth.SaveCredentialsFile("mycreds.txt")
 
 drive = GoogleDrive(gauth)
 
-folder = '1Lb55YMwFWDqXibD3U2Z3ShZtCM9dLg9i'
+folder = '1vjTc2vhRc9gmlPRQ5D6IHaL9gt07yHtf'
 
 counter=0
 while counter<10:
@@ -77,13 +78,15 @@ while counter<10:
         logger.error(e)
         counter=counter+1
 TOKEN = "5955602844:AAFfwmGzOaZoOClIKPtOSLkBjjbVBnpXuGY"
+TOKEN1 = "7232212606:AAGXr83chrmj01IFuXCSZ-3OqFj_hFI_i5U"
 CHAT_ID = '6093993760'
+CHAT_ID1 = '60939937606'
 SEND_URL = f'https://api.telegram.org/bot{TOKEN}/sendMessage'
+SEND_URL1 = f'https://api.telegram.org/bot{TOKEN1}/sendMessage'
 kf_session =""
 public_token = ""
 enc_token = ""
 enctoken = ""
-
 
 def get_enctoken(userid, password, twofa):
     session = requests.Session()
@@ -426,24 +429,24 @@ class TvDatafeed:
 
         return self.__create_df(raw_data, symbol)
 
-def rma(s: pd.Series, period: int) -> pd.Series:
-    return s.ewm(alpha=1 / period).mean()
+# def rma(s: pd.Series, period: int) -> pd.Series:
+#     return s.ewm(alpha=1 / period).mean()
 
-def atr(df: pd.DataFrame, length: int = 14) -> pd.Series:
-    # Ref: https://stackoverflow.com/a/74282809/
-    high, low, prev_close = df['high'], df['low'], df['close'].shift()
-    tr_all = [high - low, high - prev_close, low - prev_close]
-    tr_all = [tr.abs() for tr in tr_all]
-    tr = pd.concat(tr_all, axis=1).max(axis=1)
-    atr_ = rma(tr, length)
-    return atr_
+# def atr(df: pd.DataFrame, length: int = 14) -> pd.Series:
+#     # Ref: https://stackoverflow.com/a/74282809/
+#     high, low, prev_close = df['high'], df['low'], df['close'].shift()
+#     tr_all = [high - low, high - prev_close, low - prev_close]
+#     tr_all = [tr.abs() for tr in tr_all]
+#     tr = pd.concat(tr_all, axis=1).max(axis=1)
+#     atr_ = rma(tr, length)
+#     return atr_
 
-def get_pause():
-    now = datetime.now()
-    next_min = now.replace(second=0, microsecond=0) + timedelta(minutes=1)
-    pause = math.ceil((next_min - now).seconds)
-    print(f"Sleep for {pause}")
-    return pause
+# def get_pause():
+#     now = datetime.now()
+#     next_min = now.replace(second=0, microsecond=0) + timedelta(minutes=1)
+#     pause = math.ceil((next_min - now).seconds)
+#     print(f"Sleep for {pause}")
+#     return pause
 
 #drive.put("hh.txt", data="currently_buy_holding,currently_buy_holding\nFalse,False")
 #response = drive.get("hh.txt")
@@ -457,19 +460,33 @@ for index, file in enumerate(file_list):
             try:
                 df1 = file.GetContentFile(file['title'])
                 df = pd.read_csv(file['title'])
+                print(df)
                 counter=10
             except Exception as e:
                 logger.error(e)
                 counter=counter+1
 print("Check for hh.txt file"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
 currently_holding = False
-currently_buy_holding = df['currently_buy_holding'].values[0]
-currently_sell_holding = df['currently_sell_holding'].values[0]
+
+call_mon = df['call_mon'].values[0]
+call_tue = df['call_tue'].values[0]
+call_wed = df['call_wed'].values[0]
+call_thu = df['call_thu'].values[0]
+call_fri = df['call_fri'].values[0]
+
+put_mon = df['put_mon'].values[0]
+put_tue = df['put_tue'].values[0]
+put_wed = df['put_wed'].values[0]
+put_thu = df['put_thu'].values[0]
+put_fri = df['put_fri'].values[0]
 
 contract_size = 15
 TOKEN = "5955602844:AAFfwmGzOaZoOClIKPtOSLkBjjbVBnpXuGY"
+TOKEN1 = "7232212606:AAGXr83chrmj01IFuXCSZ-3OqFj_hFI_i5U"
 CHAT_ID = '6093993760'
+CHAT_ID1 = '1496681573'
 SEND_URL = f'https://api.telegram.org/bot{TOKEN}/sendMessage'
+SEND_URL1 = f'https://api.telegram.org/bot{TOKEN1}/sendMessage'
 
 # start_date = (datetime.now().strftime('%Y-%m-%d'))
 # print(start_date)
@@ -584,103 +601,131 @@ def cancel_pending_complete(s,order_pending_complete_tobe_cancel,order_cancel_co
         gfile.Upload()
     return order_pending_complete_tobe_cancel
 
-    
-def square_off_buy(order_manage,order_tobe_sqr_complete,s):
-    global file_list, kite
-    order_manage = order_manage
-    order_tobe_sqr_complete = order_tobe_sqr_complete
-    err_sqr = 0
-    shift_data = 0
-    skip_leg1 = 0
-    print("squaring off buy position","klkklklk"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
-    for mj in range(0,len(order_tobe_sqr_complete)):
-        print("Sqr "+str(order_tobe_sqr_complete['leg'][mj])+str(order_tobe_sqr_complete['strike'][mj])+str(order_tobe_sqr_complete['contract'][mj])," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
-        buy_sell="SELL"
-        df_opt = pd.DataFrame(kite.historical_data(opt_id_1, fromm, fromm, "minute", continuous=False, oi=True))
-        s = kite
-
-        retry_order = 0
-        order = order_place_sqr_complete(s,file_list,drive,order_tobe_sqr_complete['current_signal'][mj],order_tobe_sqr_complete['instrument_id'][mj],order_tobe_sqr_complete['trading_symbol'][mj],df_opt,order_tobe_sqr_complete['qty'][mj],order_tobe_sqr_complete['instru'][mj],0,order_tobe_sqr_complete['leg'][mj],order_tobe_sqr_complete['strike'][mj],order_tobe_sqr_complete['contract'][mj],order_tobe_sqr_complete['expiry'][mj],0,1,buy_sell,retry_order,order_tobe_sqr_complete['status'][mj],order_tobe_sqr_complete['reject_count'][mj],order_tobe_sqr_complete['cancel_count'][mj],0)
-        if order == "close":
-            skip_leg1 = 1
-            requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "Sqrd "+str(order_tobe_sqr_complete['leg'][mj])})
-            print("Sqr "+str(order_tobe_sqr_complete['leg'][mj])+str(order_tobe_sqr_complete['strike'][mj])+str(order_tobe_sqr_complete['contract'][mj])," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
-            print("buy position square off"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
-        else:
-            requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "Fail to Sqr "+str(order_tobe_sqr_complete['leg'][mj])})
-            err_sqr = err_sqr + 1 
-    return err_sqr
-
-def buy_pos(x,s,df25,df,exp_1,exp_2,weekly_rollover,monthly_rollover,square_off,df54):
+def buy_pos(opt_id_3,symbol_opt_3,expiry_opt_3,stk,contract,df_break,price_break,exp_1,exp_2,weekly_rollover,monthly_rollover):
     current_time = datetime.datetime.now(pytz.timezone('Asia/Kolkata')).time()
-    global  currently_sell_holding,currently_buy_holding,df79,df99,file_list,instru_name,qty_plc
-    df79 = x
-    sess = s
-    retry_order = 0
+    global  call_mon,call_tue,call_wed,call_thu,call_fri,kite
+    global  put_mon,put_tue,put_wed,put_thu,put_fri
+    global  df79,df99,file_list,instru_name,qty_plc
     weekly_rollover = weekly_rollover
     monthly_rollover = monthly_rollover
-    square_off = square_off
     print("initiate buy position"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
     today = datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()
-    df25['expiry'] = pd.to_datetime(df25.expiry, format='%Y-%m-%d').dt.date
-
-    df25 = df25[(df25['name'] == instru_name) & (df25['expiry'] >= today)]
-    df25 = df25.sort_values(by=['expiry'])
-    
-    stk1 = ((int(math.floor(df54['close'].iloc[-1] / 100.0)) * 100)+100)
-    opt_id_1 = df25.loc[(df25['name'] == instru_name) & (df25['strike'] == stk2) & (df25['instrument_type'] == "CE")]['instrument_token'].values[0]
-
-    expiry_opt_1 = df25.loc[(df25['instrument_token']==opt_id_1)]['expiry'].values[0]
-
-    #get tradingsymbol from instrument.csv
-    symbol_opt_1 = df25.loc[(df25['instrument_token']==opt_id_1)]['tradingsymbol'].values[0]
+    stk1 = stk
+    opt_id_1 = opt_id_3
+    expiry_opt_1 = expiry_opt_3
+    symbol_opt_1 = symbol_opt_3
     current_signal = "BUY"
     instru = "Spread Up 1"
     quantity = qty_plc
     leg1="leg1"
-    contract1 = "C"
+    contract1 = contract
     fresh_position = 1
     first_order = 0
     second_order = 0
-    if(df79.empty):
-        trade_id = 1
-        print("trade id set "," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
-    else:
-        trade_id = df79['trade_id'].max() + 1
-    df_opt_1 = pd.DataFrame(kite.historical_data(opt_id_1, fromm, fromm, "minute", continuous=False, oi=True))
-    price_opt_1 = df_opt_1['close'].iloc[-1]
-    s= kite
-    price_opt_1_ideal = df_opt_1['close'].iloc[-1]
-    instru = "Spread Up 1"
-    quantity = qty_plc
-    fresh_position = 1
-    trade_id = trade_id + 1
-    print("order for Leg2 being placed"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
+    trade_id = 1
+    s = kite
+    print("trade id set "," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
+    price_opt_1 = price_break
+    price_opt_1_ideal = price_break
+    retry_order = 0
+    print("order being placed for"," ", contract, " ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
     first_order = order_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,price_opt_1,quantity,instru,fresh_position,leg1,stk1,contract1,expiry_opt_1,trade_id,0,"BUY",retry_order,"",0,0,0) 
     if first_order:
-        print("order executed for Leg1"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
+        print("order executed"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
     else:
         requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "Spread 1 S Leg 1 failed to execute"})
+        requests.post(SEND_URL1, json={'chat_id': CHAT_ID1, 'text': "Spread 1 S Leg 1 failed to execute"})
         print("error in executing Leg 1"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
-    currently_buy_holding = True
-    currently_sell_holding = False
-    hh = "currently_buy_holding,currently_sell_holding\nTrue,False"
-    with open("hh.txt", "w") as f:
-        f.write(hh)
+
+    # currently_sell_holding = False
+    # hh = "currently_buy_holding,currently_sell_holding\nTrue,False"
+    # with open("hh.txt", "w") as f:
+    #     f.write(hh)
     bb = ""
-    nn = ""
+    hh = ""
     for index, file in enumerate(file_list):
         if(file['title'] =="hh.txt"):
             hh = file['id']
+            df74 = pd.read_csv(file['title'])
+    if contract == "C":
+        if date.today().weekday() == 0:
+            call_mon = True
+            df74.at[0,"call_mon"] = "True"
+        if date.today().weekday() == 1:
+            call_tue = True
+            df74.at[0,"call_tue"] = "True"
+        if date.today().weekday() == 2:
+            call_wed = True
+            df74.at[0,"call_wed"] = "True"
+        if date.today().weekday() == 3:
+            call_thu = True
+            df74.at[0,"call_thu"] = "True"
+        if date.today().weekday() == 4:
+            call_fri = True
+            df74.at[0,"call_fri"] = "True"
+
+    if contract == "P":
+        if date.today().weekday() == 0:
+            put_mon = True
+            df74.at[0,"put_mon"] = "True"
+        if date.today().weekday() == 1:
+            put_tue = True
+            df74.at[0,"put_tue"] = "True"
+        if date.today().weekday() == 2:
+            put_wed = True
+            df74.at[0,"put_wed"] = "True"
+        if date.today().weekday() == 3:
+            put_thu = True
+            df74.at[0,"put_thu"] = "True"
+        if date.today().weekday() == 4:
+            put_fri = True
+            df74.at[0,"put_fri"] = "True"
+
     if hh:
+        df74.to_csv("hh.txt", index=False)
         update_file = drive.CreateFile({'id': hh})
         update_file.SetContentFile("hh.txt")
         update_file.Upload()
     print("buy position status saved to files"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
     return 0
 
+def square_off(order_manage,order_tobe_sqr_complete,s):
+    global file_list,kite
+    order_manage = order_manage
+    order_tobe_sqr_complete = order_tobe_sqr_complete
+    err_sqr = 0
+    shift_data = 0
+    s = kite
+    skip_leg1 = 0
+    print("squaring off position","klkklklk"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
+    retry_order = 0
+    for mj in range(0,len(order_tobe_sqr_complete)):
+        print("Sqr "+str(order_tobe_sqr_complete['leg'][mj])+str(order_tobe_sqr_complete['strike'][mj])+str(order_tobe_sqr_complete['contract'][mj])," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
+        # if order_tobe_sqr_complete['buy_sell'][mj] == "SELL":
+        #     buy_sell="BUY"
+        # else:
+        buy_sell="SELL"
+        df_opt = pd.DataFrame(s.historical_data(order_tobe_sqr_complete['instrument_id'][mj], fromm, fromm, "minute", continuous=False, oi=True))
+        # get_data(order_tobe_sqr_complete['instrument_id'][mj],fromm, fromm, "minute",s)
+        retry_order = 0
+        order = order_place_sqr_complete(s,file_list,drive,order_tobe_sqr_complete['current_signal'][mj],order_tobe_sqr_complete['instrument_id'][mj],order_tobe_sqr_complete['trading_symbol'][mj],df_opt,order_tobe_sqr_complete['qty'][mj],order_tobe_sqr_complete['instru'][mj],0,order_tobe_sqr_complete['leg'][mj],order_tobe_sqr_complete['strike'][mj],order_tobe_sqr_complete['contract'][mj],order_tobe_sqr_complete['expiry'][mj],0,1,buy_sell,retry_order,order_tobe_sqr_complete['status'][mj],order_tobe_sqr_complete['reject_count'][mj],order_tobe_sqr_complete['cancel_count'][mj],0)
+        if order == "close":
+            skip_leg1 = 1
+            requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "Sqrd "+str(order_tobe_sqr_complete['leg'][mj])})
+            requests.post(SEND_URL1, json={'chat_id': CHAT_ID1, 'text': "Sqrd "+str(order_tobe_sqr_complete['leg'][mj])})
+            print("Sqr "+str(order_tobe_sqr_complete['leg'][mj])+str(order_tobe_sqr_complete['strike'][mj])+str(order_tobe_sqr_complete['contract'][mj])," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
+            print("position squared off"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
+        else:
+            requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "Failed to Sqr off"+str(order_tobe_sqr_complete['leg'][mj])})
+            requests.post(SEND_URL1, json={'chat_id': CHAT_ID1, 'text': "Failed to Sqr off"+str(order_tobe_sqr_complete['leg'][mj])})
+            err_sqr = err_sqr + 1 
+    return err_sqr
+
+
 def save_pos_buy(s,df25,df,exp_1,exp_2,weekly_rollover,monthly_rollover,df54):
-    global  currently_sell_holding,currently_buy_holding,file_list,instru_name,qty_plc
+    global  call_mon,call_tue,call_wed,call_thu,call_fri
+    global  put_mon,put_tue,put_wed,put_thu,put_fri
+    global file_list,instru_name,qty_plc
     current_time = datetime.datetime.now(pytz.timezone('Asia/Kolkata')).time()
     weekly_rollover = weekly_rollover
     monthly_rollover = monthly_rollover
@@ -735,15 +780,15 @@ def save_pos_buy(s,df25,df,exp_1,exp_2,weekly_rollover,monthly_rollover,df54):
     print("buy position status saved to files"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
     return 0
 
-   
 def hello_world():
     #logging.basicConfig(level=logging.DEBUG)
-    global  currently_sell_holding,TOKEN, CHAT_ID, SEND_URL,file_list,df79,df99,file_list,drive
-    global currently_buy_holding
+    global  TOKEN, CHAT_ID, SEND_URL,file_list,df79,df99,file_list,drive,TOKEN1, CHAT_ID1, SEND_URL1
+    global  call_mon,call_tue,call_wed,call_thu,call_fri,kite
+    global  put_mon,put_tue,put_wed,put_thu,put_fri
     s = Session()
     user_id = "YS5544"
     password = "NewYork123#"
-    m = pyotp.TOTP("NOB3B7VSDMP5MIRKMXC5NQ5WLXEX7EO6")
+    m = pyotp.TOTP("77ZJTBDZVDM27QZB4HRPY7M6XYN532EN")
     twofa = m.now()
     enctoken = get_enctoken(user_id, password, twofa)
     kite = KiteApp(enctoken=enctoken)
@@ -830,6 +875,7 @@ def hello_world():
         #csv_raw = StringIO(file.text)
         if(file['title'] =="instruments.csv"):
             df25 = pd.read_csv(file['title'])
+            df85 = pd.read_csv(file['title'])
         if(file['title'] =="order_tobe_cancel.txt"):
             order_tobe_cancel = pd.read_csv(file['title'])
         if(file['title'] =="order_tobe_cancel_complete.txt"):
@@ -871,7 +917,7 @@ def hello_world():
         if(file['title'] =="order_tobe_sqr_complete.txt"):
             order_tobe_sqr_complete = pd.read_csv(file['title'])
     df25 = pd.read_csv('instruments.csv',parse_dates=True,dayfirst=True)
-    tv = TvDatafeed()
+    # tv = TvDatafeed()
     trade_id = 0
     if len(order_manage)<0:
         order_manage =pd.DataFrame(columns=COLUMN_NAMES)
@@ -913,8 +959,35 @@ def hello_world():
         order_pending_tobe_cancel =pd.DataFrame(columns=COLUMN_NAMES)
     if len(order_pending_complete_tobe_cancel)<0:
         order_pending_complete_tobe_cancel =pd.DataFrame(columns=COLUMN_NAMES)
+    current_time = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
+    mon_time_C = datetime.time(10,30,0)
+    tue_time_C = datetime.time(12,0,0)
+    wed_time_C = datetime.time(14,0,0)
+    thu_time_C = datetime.time(12,15,0)
+    fri_time_C = datetime.time(11,15,0)
+    mon_time_P = datetime.time(11,30,0)
+    tue_time_P = datetime.time(12,0,0)
+    wed_time_P = datetime.time(9,45,0)
+    thu_time_P = datetime.time(11,0,0)
+    fri_time_P = datetime.time(11,15,0)
+    mon_starting_time_C = datetime.time(9,16,0)
+    tue_starting_time_C = datetime.time(9,44,0)
+    wed_starting_time_C = datetime.time(9,16,0)
+    thu_starting_time_C = datetime.time(9,16,0)
+    fri_starting_time_C = datetime.time(9,16,0)
+    mon_starting_time_P = datetime.time(9,16,0)
+    tue_starting_time_P = datetime.time(9,44,0)
+    wed_starting_time_P = datetime.time(9,16,0)
+    thu_starting_time_P = datetime.time(10,0,0)
+    fri_starting_time_P = datetime.time(9,16,0)
 
-    while True:
+    starting = 0
+    # if True:
+    if (date.today().weekday() == 0 and current_time >= mon_time_C) or (date.today().weekday() == 1 and current_time >= tue_time_C) or (date.today().weekday() == 2 and current_time >= wed_time_C) or (date.today().weekday() == 3 and current_time >= thu_time_C) or (date.today().weekday() == 4 and current_time >= fri_time_C):
+        starting = 1
+    if (date.today().weekday() == 0 and current_time >= mon_time_P) or (date.today().weekday() == 1 and current_time >= tue_time_P) or (date.today().weekday() == 2 and current_time >= wed_time_P) or (date.today().weekday() == 3 and current_time >= thu_time_P) or (date.today().weekday() == 4 and current_time >= fri_time_P):
+        starting = 1
+    while starting:
         current_time = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
         current_time1 = datetime.datetime.now(pytz.timezone('Asia/Kolkata')).time()
         today = datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()
@@ -928,7 +1001,7 @@ def hello_world():
         s = kite
 #         global order_pending_complete,order_reject_complete,order_complete,order_pending,order_reject,order_manage,order_pending_multiple,order_reject_multiple,order_multiple,order_tobe_exec_log
         
-        if current_time.second == 0 and current_time.minute % 5 == 0:
+        if current_time.second == 0 and current_time.minute % 1 == 0:
         # if True:
 #             print(df79, file=sys.stderr) 
             print("vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
@@ -975,8 +1048,20 @@ def hello_world():
                     df2 = pd.read_csv(file['title'])
 #print("Check for hh.txt file"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
 #currently_holding = False
-                    currently_buy_holding = df2['currently_buy_holding'].values[0]
-                    currently_sell_holding = df2['currently_sell_holding'].values[0]
+                    call_mon = df2['call_mon'].values[0]
+                    call_tue = df2['call_tue'].values[0]
+                    call_wed = df2['call_wed'].values[0]
+                    call_thu = df2['call_thu'].values[0]
+                    call_fri = df2['call_fri'].values[0]
+
+                    put_mon = df2['put_mon'].values[0]
+                    put_tue = df2['put_tue'].values[0]
+                    put_wed = df2['put_wed'].values[0]
+                    put_thu = df2['put_thu'].values[0]
+                    put_fri = df2['put_fri'].values[0]
+
+                    # currently_buy_holding = df2['currently_buy_holding'].values[0]
+                    # currently_sell_holding = df2['currently_sell_holding'].values[0]
 
             if len(order_pending_complete) > 0:
                 print("order_pending_complete being checked"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
@@ -1413,29 +1498,29 @@ def hello_world():
                         if not status4:
                             retry_order = 0
                             print(order_pending['order_id'][kl],"llllllllllllllll")
-                            order_leg,price,modify_time = order_modify(s,file_list,drive,order_pending['current_signal'][kl],order_pending['instrument_id'][kl],order_pending['trading_symbol'][kl],order_pending['price_when_order_placed'][kl],order_pending['qty'][kl],order_pending['instru'][kl],order_pending['fresh_position'][kl],"leg1",order_pending['strike'][kl],order_pending['contract'][kl],order_pending['expiry'][kl],order_pending['trade_id'][kl],0,order_pending['buy_sell'][kl],retry_order,order_pending['status'][kl],order_pending['order_id'][kl])
-                            if order_leg == "modified":
-                                status1 = check_order_history(s,order_pending['order_id'][kl],order_pending['instrument_id'][kl],order_pending['fresh_position'][kl],order_pending['status'][kl])
-                                if status1 == "open":
-                                    print(order_pending)
-                                    order_pending.at[kl,"status"] = "open"
-                                    # order_pending.set_value(kl, 'status', "open")
-                                    print(order_pending)
-                                    order_pending.at[kl,"entry_time"] = modify_time
-                                    order_pending.at[kl,"entry_price"] = price
-                                    print(order_pending)
-                                    order_complete.loc[len(order_complete)] = order_pending.iloc[kl]
-                                    print(order_complete)
-                                    # order_pending = order_pending.drop(kl)
-                                    kl_del.append(kl)
-                                    continue
-                                if status1 == "close":
-                                    order_pending.at[kl,"status"] = "close"
-                                    order_pending.at[kl,"exit_time"] = modify_time
-                                    order_pending.at[kl,"exit_price"] = price
-                                    order_complete.loc[len(order_complete)] = order_pending.iloc[kl]
-                                    # order_pending = order_pending.drop(kl)
-                                    kl_del.append(kl)
+                            # order_leg,price,modify_time = order_modify(s,file_list,drive,order_pending['current_signal'][kl],order_pending['instrument_id'][kl],order_pending['trading_symbol'][kl],order_pending['price_when_order_placed'][kl],order_pending['qty'][kl],order_pending['instru'][kl],order_pending['fresh_position'][kl],"leg1",order_pending['strike'][kl],order_pending['contract'][kl],order_pending['expiry'][kl],order_pending['trade_id'][kl],0,order_pending['buy_sell'][kl],retry_order,order_pending['status'][kl],order_pending['order_id'][kl])
+                            # if order_leg == "modified":
+                            #     status1 = check_order_history(s,order_pending['order_id'][kl],order_pending['instrument_id'][kl],order_pending['fresh_position'][kl],order_pending['status'][kl])
+                            #     if status1 == "open":
+                            #         print(order_pending)
+                            #         order_pending.at[kl,"status"] = "open"
+                            #         # order_pending.set_value(kl, 'status', "open")
+                            #         print(order_pending)
+                            #         order_pending.at[kl,"entry_time"] = modify_time
+                            #         order_pending.at[kl,"entry_price"] = price
+                            #         print(order_pending)
+                            #         order_complete.loc[len(order_complete)] = order_pending.iloc[kl]
+                            #         print(order_complete)
+                            #         # order_pending = order_pending.drop(kl)
+                            #         kl_del.append(kl)
+                            #         continue
+                            #     if status1 == "close":
+                            #         order_pending.at[kl,"status"] = "close"
+                            #         order_pending.at[kl,"exit_time"] = modify_time
+                            #         order_pending.at[kl,"exit_price"] = price
+                            #         order_complete.loc[len(order_complete)] = order_pending.iloc[kl]
+                            #         # order_pending = order_pending.drop(kl)
+                            #         kl_del.append(kl)
                 print(order_pending)
                 order_pending = order_pending.drop(order_pending.index[kl_del])
                 print(order_pending)
@@ -1864,25 +1949,59 @@ def hello_world():
                         if order == "close":
                             skip_leg1 = 1
                             requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "Sqrd "+str(order_tobe_sqr_complete['leg'][mj])})
+                            requests.post(SEND_URL1, json={'chat_id': CHAT_ID1, 'text': "Sqrd "+str(order_tobe_sqr_complete['leg'][mj])})
                             print("Sqr "+str(order_tobe_sqr_complete['leg'][mj])+str(order_tobe_sqr_complete['strike'][mj])+str(order_tobe_sqr_complete['contract'][mj])," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                             print("position square off"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
-                            currently_buy_holding = False
-                            currently_sell_holding = False
-                            hh = "currently_buy_holding,currently_sell_holding\nTrue,False"
-                            with open("hh.txt", "w") as f:
-                                f.write(hh)
-                            bb = ""
-                            nn = ""
+                            # currently_buy_holding = False
+                            # currently_sell_holding = False
+                            # hh = "currently_buy_holding,currently_sell_holding\nTrue,False"
+                            # with open("hh.txt", "w") as f:
+                            #     f.write(hh)
+                            # bb = ""
+                            # nn = ""
+                            # for index, file in enumerate(file_list):
+                            #     if(file['title'] =="hh.txt"):
+                            #         hh = file['id']
+                            # if hh:
+                            #     update_file = drive.CreateFile({'id': hh})
+                            #     update_file.SetContentFile("hh.txt")
+                            #     update_file.Upload()
                             for index, file in enumerate(file_list):
                                 if(file['title'] =="hh.txt"):
                                     hh = file['id']
+                                    df74 = pd.read_csv(file['title'])
+                            if str(order_tobe_sqr_complete['contract'][mj]) == "C":
+                                if date.today().weekday() != 0 and df74['call_mon'][0]:
+                                    df74.at[0,"call_mon"] = False
+                                if date.today().weekday() != 1 and df74['call_tue'][0]:
+                                    df74.at[0,"call_tue"] = False
+                                if date.today().weekday() != 2 and df74['call_wed'][0]:
+                                    df74.at[0,"call_wed"] = False
+                                if date.today().weekday() != 3 and df74['call_thu'][0]:
+                                    df74.at[0,"call_thu"] = False
+                                if date.today().weekday() != 4 and df74['call_fri'][0]:
+                                    df74.at[0,"call_fri"] = False
+
+                            if str(order_tobe_sqr_complete['contract'][mj]) == "P":
+                                if date.today().weekday() != 0 and df74['put_mon'][0]:
+                                    df74.at[0,"put_mon"] = False
+                                if date.today().weekday() != 1 and df74['put_tue'][0]:
+                                    df74.at[0,"put_tue"] = False
+                                if date.today().weekday() != 2 and df74['put_wed'][0]:
+                                    df74.at[0,"put_wed"] = False
+                                if date.today().weekday() != 3 and df74['put_thu'][0]:
+                                    df74.at[0,"put_thu"] = False
+                                if date.today().weekday() != 4 and df74['put_fri'][0]:
+                                    df74.at[0,"put_fri"] = False
                             if hh:
+                                df74.to_csv("hh.txt", index=False)
                                 update_file = drive.CreateFile({'id': hh})
                                 update_file.SetContentFile("hh.txt")
                                 update_file.Upload()
 
                         else:
                             requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "Fail to Sqr "+str(order_tobe_sqr_complete['leg'][mj])})
+                            requests.post(SEND_URL1, json={'chat_id': CHAT_ID1, 'text': "Fail to Sqr "+str(order_tobe_sqr_complete['leg'][mj])})
                 ss = 0
                 for index, file in enumerate(file_list):
                     if(file['title'] =="order_tobe_sqr_complete.txt"):
@@ -2682,7 +2801,6 @@ def hello_world():
                     gfile = drive.CreateFile({'parents' : [{'id' : folder}], 'title' : "order_multiple.txt"})
                     gfile.SetContentFile("order_multiple.txt")
                     gfile.Upload()
-
             if len(order_pending) > 0:
                 print("order_pending being checked for duplicate"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                 df_order_pending = order_pending.loc[order_pending.duplicated('instrument_id'),:]
@@ -2717,16 +2835,15 @@ def hello_world():
                     gfile = drive.CreateFile({'parents' : [{'id' : folder}], 'title' : "order_tobe_cancel.txt"})
                     gfile.SetContentFile("order_tobe_cancel.txt")
                     gfile.Upload()
-
 #                         order_leg2 = order_place(s,file_list,drive,df30.loc[df30['leg']== "leg2",'current_signal'].values[0],df30.loc[df30['leg']== "leg2",'instrument_id'].values[0],df30.loc[df30['leg']== "leg2",'trading_symbol'].values[0],df30.loc[df30['leg']== "leg2",'price_when_order_placed'].values[0],df30.loc[df30['leg']== "leg2",'qty'].values[0],df30.loc[df30['leg']== "leg2",'instru'].values[0],df30.loc[df30['leg']== "leg2",'fresh_position'].values[0],"leg2",df30.loc[df30['leg']== "leg2",'strike'].values[0],df30.loc[df30['leg']== "leg2",'contract'].values[0],df30.loc[df30['leg']== "leg2",'expiry'].values[0],df30.loc[df30['leg']== "leg2",order_manage.loc[order_manage['leg']== "leg1",'trade_id'].values[0],0,'buy_sell'].values[0],retry_order,order_manage.loc[order_manage['leg']== "leg2",'status'].values[0])
 #                         if not order_leg2:
 #                             order_leg1 = order_place(s,file_list,drive,df30.loc[df30['leg']== "leg1",'current_signal'].values[0],df30.loc[df30['leg']== "leg1",'instrument_id'].values[0],df30.loc[df30['leg']== "leg1",'trading_symbol'].values[0],df30.loc[df30['leg']== "leg1",'price_when_order_placed'].values[0],df30.loc[df30['leg']== "leg1",'qty'].values[0],df30.loc[df30['leg']== "leg1",'instru'].values[0],df30.loc[df30['leg']== "leg1",'fresh_position'].values[0],"leg1",df30.loc[df30['leg']== "leg1",'strike'].values[0],df30.loc[df30['leg']== "leg1",'contract'].values[0],df30.loc[df30['leg']== "leg1",'expiry'].values[0],df30.loc[df30['leg']== "leg1",order_manage.loc[order_manage['leg']== "leg1",'trade_id'].values[0],0,'buy_sell'].values[0],retry_order,order_manage.loc[order_manage['leg']== "leg1",'status'].values[0])
 #                     order_leg3 = order_place(s,file_list,drive,df30.loc[df30['leg']== "leg3",'current_signal'].values[0],df30.loc[df30['leg']== "leg3",'instrument_id'].values[0],df30.loc[df30['leg']== "leg3",'trading_symbol'].values[0],df30.loc[df30['leg']== "leg3",'price_when_order_placed'].values[0],df30.loc[df30['leg']== "leg3",'qty'].values[0],df30.loc[df30['leg']== "leg3",'instru'].values[0],df30.loc[df30['leg']== "leg3",'fresh_position'].values[0],"leg3",df30.loc[df30['leg']== "leg3",'strike'].values[0],df30.loc[df30['leg']== "leg3",'contract'].values[0],df30.loc[df30['leg']== "leg3",'expiry'].values[0],order_manage.loc[order_manage['leg']== "leg1",'trade_id'].values[0],0,df30.loc[df30['leg']== "leg3",'buy_sell'].values[0],retry_order,order_manage.loc[order_manage['leg']== "leg3",'status'].values[0])
 #                     order_leg4 = order_place(s,file_list,drive,df30.loc[df30['leg']== "leg4",'current_signal'].values[0],df30.loc[df30['leg']== "leg4",'instrument_id'].values[0],df30.loc[df30['leg']== "leg4",'trading_symbol'].values[0],df30.loc[df30['leg']== "leg4",'price_when_order_placed'].values[0],df30.loc[df30['leg']== "leg4",'qty'].values[0],df30.loc[df30['leg']== "leg4",'instru'].values[0],df30.loc[df30['leg']== "leg4",'fresh_position'].values[0],"leg4",df30.loc[df30['leg']== "leg4",'strike'].values[0],df30.loc[df30['leg']== "leg4",'contract'].values[0],df30.loc[df30['leg']== "leg4",'expiry'].values[0],order_manage.loc[order_manage['leg']== "leg1",'trade_id'].values[0],0,df30.loc[df30['leg']== "leg4",'buy_sell'].values[0],retry_order,order_manage.loc[order_manage['leg']== "leg4",'status'].values[0])
-                    
-            if (not currently_buy_holding and not currently_sell_holding) or (currently_buy_holding) or (currently_sell_holding):
+            if call_mon or call_tue or  call_wed or  call_thu or call_fri or put_mon or put_tue or put_wed or put_thu or put_fri:
 #             if False:
                 requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "running "+str(current_time.date())+" "+str(current_time.time())})
+                requests.post(SEND_URL1, json={'chat_id': CHAT_ID1, 'text': "running "+str(current_time.date())+" "+str(current_time.time())})
                 df99=pd.DataFrame()
 #                 df99 = response
                 # file_list = drive.ListFile({'q' : f"'{folder}' in parents and trashed=false"}).GetList()
@@ -2757,9 +2874,7 @@ def hello_world():
                         order_cancel = pd.read_csv(file['title'])
                     if(file['title'] =="order_cancel_complete.txt"):
                         order_cancel_complete = pd.read_csv(file['title'])
-
             #             response1 = response1.reset_index(drop=True)
-
                 print(s, file=sys.stderr)
                 # if len(order_manage) > 0:
                 #     df99 = df79[df79['status']=="Open"].reset_index()
@@ -2789,6 +2904,7 @@ def hello_world():
 #                 print(currnt_profit_opt_1,currnt_profit_opt_2,currnt_profit_opt_3,lll)
                     mesg = str(mesg)+str("overall  ")+str(overall_profit)
                     requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': mesg})  
+                    requests.post(SEND_URL1, json={'chat_id': CHAT_ID1, 'text': mesg})  
 
 #                 print(df99, file=sys.stderr)
 #                 print("P and L", file=sys.stderr)
@@ -2810,49 +2926,164 @@ def hello_world():
                     exp_1 = df26['expiry'].iloc[0]
                         # if len(order_complete.loc[order_complete['leg']== "leg4",'expiry'])>0 and order_complete.loc[order_complete['leg']== "leg4",'expiry'].values[0]:
                     exp_2 = df26['expiry'].iloc[-1]
-
             df54 = pd.DataFrame()
-            df = tv.get_hist(symbol=instru_name,exchange='NSE',fut_contract=1,interval=Interval.in_5_minute,n_bars=1000)
-            df54 = tv.get_hist(symbol=instru_name,exchange='NSE',interval=Interval.in_5_minute,n_bars=1000)
-            df65 = pd.DataFrame()
-            df1 = pd.DataFrame()
-            data = pd.DataFrame()
-            df5 = pd.DataFrame()
-            df = df.dropna()
-            df = df.reset_index()
-            result = ta.bbands(df.close,20,2, talib=False)
-            supertrend = ta.supertrend(df.high, df.low, df.close,10,2)
-            df['bbu']=result['BBU_20_2.0']
-            df['supertrend'] = supertrend['SUPERT_10_2.0']
-            df['rsi'] = ta.rsi(df.close, 14)            # Function to compute ATRTrailingStop
-            df['Buy'] = (df.close > df.supertrend) & (df.close > df.bbu) & (df.rsi > 70) & (df.close > df.high.shift(1)) & (df.close > df.open)
-            df["Sell"] = (df.close < df.supertrend) | (current_time1>=datetime.time(15,20,0))
-            print(currently_buy_holding,currently_sell_holding," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
-            df = df[(df['datetime'] <= (datetime.datetime.now()- pd.Timedelta(minutes = 5)))]
-            requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "Buy " +str(df['Buy'].iloc[-1])+" Sell "+str(df['Sell'].iloc[-1])})  
-            requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': df.iloc[-1].to_string()})
-            if df['Buy'].iloc[-1] and not currently_buy_holding:
-                print("Buy Signal Generated"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
-                requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "Buy Signal Generated"})
-                requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': df.iloc[-1].to_string()})
+            # df = tv.get_hist(symbol=instru_name,exchange='NSE',fut_contract=1,interval=Interval.in_5_minute,n_bars=1000)
+            # df54 = tv.get_hist(symbol=instru_name,exchange='NSE',interval=Interval.in_5_minute,n_bars=1000)
+            # df65 = pd.DataFrame()
+            # df1 = pd.DataFrame()
+            # data = pd.DataFrame()
+            # df5 = pd.DataFrame()
+            # df = df.dropna()
+            # df = df.reset_index()
+            # result = ta.bbands(df.close,20,2, talib=False)
+            # supertrend = ta.supertrend(df.high, df.low, df.close,10,2)
+            # df['bbu']=result['BBU_20_2.0']
+            # df['supertrend'] = supertrend['SUPERT_10_2.0']
+            # df['rsi'] = ta.rsi(df.close, 14)            # Function to compute ATRTrailingStop
+            # df['Buy'] = (df.close > df.supertrend) & (df.close > df.bbu) & (df.rsi > 70) & (df.close > df.high.shift(1)) & (df.close > df.open)
+            # df["Sell"] = (df.close < df.supertrend) | (current_time1>=datetime.time(15,20,0))
+            # print(df25.head(10))
+            df25['expiry'] = pd.to_datetime(df25.expiry, format='%Y-%m-%d').dt.date
+            df85['expiry'] = pd.to_datetime(df25.expiry, format='%Y-%m-%d').dt.date
+            instrument_token = df85.loc[(df85['name'] == "NIFTY BANK") & (df85['instrument_type'] == "EQ")]['instrument_token'].values[0]
+            from_datetime = datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()
+            to_datetime = datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()
+            interval = "minute"
+            print(instrument_token,from_datetime)
+            check_time_C = datetime.time(9,29,0)
+            check_time_P = datetime.time(9,29,0)
+            if date.today().weekday() == 0:
+                check_time_C = mon_starting_time_C
+                check_time_P = mon_starting_time_P
+            elif date.today().weekday() == 1:
+                check_time_C = tue_starting_time_C
+                check_time_P = tue_starting_time_P    
+            elif date.today().weekday() == 2:
+                check_time_C = wed_starting_time_C
+                check_time_P = wed_starting_time_P
+            elif date.today().weekday() == 3:
+                check_time_C = thu_starting_time_C
+                check_time_P = thu_starting_time_P
+            elif date.today().weekday() == 4:
+                check_time_C = fri_starting_time_C
+                check_time_P = fri_starting_time_P
+            df_range = pd.DataFrame(kite.historical_data(instrument_token, fromm, fromm, interval))
+            starting_time = datetime.time(9,29,0)
+            df_range['TIME1'] = df_range['date'].dt.time
+            stk_C = int(math.floor(df_range[df_range['TIME1'] == check_time_C]['close'].values[0])/100)*100
+            stk_P = int(math.floor(df_range[df_range['TIME1'] == check_time_P]['close'].values[0])/100)*100
+            df25 = df25[(df25['name'] == "BANKNIFTY") & (df25['expiry'] >= today)]
+            df25 = df25.sort_values(by=['expiry'])
+            df_stk=pd.DataFrame()
+            ik = 0
+            for x in range(stk_C-1000, stk_C+1000,100):
+                opt_id_2 = df25.loc[(df25['name'] == "BANKNIFTY") & (df25['strike'] == x) & (df25['instrument_type'] == "CE")]['instrument_token'].values[0]
+                expiry_opt_2 = df25.loc[(df25['instrument_token']==opt_id_2)]['expiry'].values[0]
+                symbol_opt_2 = df25.loc[(df25['instrument_token']==opt_id_2)]['tradingsymbol'].values[0]
+                df_opt_2 = pd.DataFrame(kite.historical_data(opt_id_2, fromm, fromm, "minute", continuous=False, oi=True))
+                df_opt_2 
+                df_opt_2['TIME1'] = df_opt_2['date'].dt.time
+                df_stk.at[ik,'strike'] = x
+                if len(df_opt_2[df_opt_2['TIME1'] == check_time_C]['close']) > 0:
+                    y = df_opt_2[df_opt_2['TIME1'] == check_time_C]['close'].values[0]
+                else:
+                    y = 0
+                df_stk.at[ik,'price'] = y
+                df_stk.at[ik,'diff'] = abs(y - 200)
+                ik = ik + 1
+            opt_id_3_C = df25.loc[(df25['name'] == "BANKNIFTY") & (df25['strike'] == int(df_stk.loc[df_stk[['diff']].idxmin(),"strike"].values[0])) & (df25['instrument_type'] == "CE")]['instrument_token'].values[0]
+            symbol_opt_3_C = df25.loc[(df25['instrument_token']==opt_id_3_C)]['tradingsymbol'].values[0]
+            expiry_opt_3_C = expiry_opt_2
+            stk_C1 = int(df_stk.loc[df_stk[['diff']].idxmin(),"strike"].values[0])
+            print(stk_C1)
+            # df = get_data(opt_id_3,fromm, fromm, "minute",s)
+            df_break_C = pd.DataFrame(kite.historical_data(opt_id_3_C, fromm, fromm, "minute", continuous=False, oi=True))
+            df_break_C['TIME1'] = df_break_C['date'].dt.time
+            price_break_C = df_break_C[df_break_C['TIME1'] < mon_time_C]['close'].iloc[-1]
+            for x in range(stk_P-1000, stk_P+1000,100):
+                opt_id_2 = df25.loc[(df25['name'] == "BANKNIFTY") & (df25['strike'] == x) & (df25['instrument_type'] == "PE")]['instrument_token'].values[0]
+                expiry_opt_2 = df25.loc[(df25['instrument_token']==opt_id_2)]['expiry'].values[0]
+                symbol_opt_2 = df25.loc[(df25['instrument_token']==opt_id_2)]['tradingsymbol'].values[0]
+                df_opt_2 = pd.DataFrame(kite.historical_data(opt_id_2, fromm, fromm, "minute", continuous=False, oi=True))
+                df_opt_2 
+                df_opt_2['TIME1'] = df_opt_2['date'].dt.time
+                df_stk.at[ik,'strike'] = x
+                if len(df_opt_2[df_opt_2['TIME1'] == check_time_P]['close']) > 0:
+                    y = df_opt_2[df_opt_2['TIME1'] == check_time_P]['close'].values[0]
+                else:
+                    y = 0
+                df_stk.at[ik,'price'] = y
+                df_stk.at[ik,'diff'] = abs(y - 200)
+                ik = ik + 1
+            opt_id_3_P = df25.loc[(df25['name'] == "BANKNIFTY") & (df25['strike'] == int(df_stk.loc[df_stk[['diff']].idxmin(),"strike"].values[0])) & (df25['instrument_type'] == "CE")]['instrument_token'].values[0]
+            symbol_opt_3_P = df25.loc[(df25['instrument_token']==opt_id_3_P)]['tradingsymbol'].values[0]
+            expiry_opt_3_P = expiry_opt_2
+            stk_P1 = int(df_stk.loc[df_stk[['diff']].idxmin(),"strike"].values[0])
+            # df = get_data(opt_id_3,fromm, fromm, "minute",s)
+            df_break_P = pd.DataFrame(kite.historical_data(opt_id_3_P, fromm, fromm, "minute", continuous=False, oi=True))
+            df_break_P['TIME1'] = df_break_P['date'].dt.time
+            
+            if date.today().weekday() == 0:
+                price_break_C = df_break_C[df_break_C['TIME1'] < mon_time_C]['close'].iloc[-1]
+                price_break_P = df_break_P[df_break_P['TIME1'] < mon_time_P]['close'].iloc[-1]
+            elif date.today().weekday() == 1:
+                price_break_C = df_break_C[df_break_C['TIME1'] < tue_time_C]['close'].iloc[-1]
+                price_break_P = df_break_P[df_break_P['TIME1'] < tue_time_P]['close'].iloc[-1]
+            elif date.today().weekday() == 2:
+                price_break_C = df_break_C[df_break_C['TIME1'] < wed_time_C]['close'].iloc[-1]
+                price_break_P = df_break_P[df_break_P['TIME1'] < wed_time_P]['close'].iloc[-1]
+            elif date.today().weekday() == 3:
+                price_break_C = df_break_C[df_break_C['TIME1'] < thu_time_C]['close'].iloc[-1]
+                price_break_P = df_break_P[df_break_P['TIME1'] < thu_time_P]['close'].iloc[-1]
+            elif date.today().weekday() == 4:
+                price_break_C = df_break_C[df_break_C['TIME1'] < fri_time_C]['close'].iloc[-1]
+                price_break_P = df_break_P[df_break_P['TIME1'] < fri_time_P]['close'].iloc[-1]
+
+            # print(currently_buy_holding,currently_sell_holding," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
+            # df = df[(df['datetime'] <= (datetime.datetime.now()- pd.Timedelta(minutes = 5)))]
+            # requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "Buy " +str(df['Buy'].iloc[-1])+" Sell "+str(df['Sell'].iloc[-1])})  
+            # requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': df.iloc[-1].to_string()})
+            # if not currently_buy_holding:
+            order_complete['entry_time']= pd.to_datetime(order_complete['entry_time'])
+            # if True:
+            if ((date.today().weekday() == 0) and not call_mon and current_time >= mon_time_C) or ((date.today().weekday() == 1) and not call_tue and current_time >= tue_time_C) or ((date.today().weekday() == 2) and not call_wed and current_time >= wed_time_C) or ((date.today().weekday() == 3) and not call_thu and current_time >= thu_time_C) or ((date.today().weekday() == 4) and not call_fri and current_time >= fri_time_C):
+                weekly_rollover =""
+                monthly_rollover = ""
+                print("Call Order Punching"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
+                requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "Call Buy Signal Generated"})
+                requests.post(SEND_URL1, json={'chat_id': CHAT_ID1, 'text': "Call Buy Signal Generated"})
+                # requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': df.iloc[-1].to_string()})
                 signal_ongoing = "BUY"
+                contract = "C"
                 print("entering buy position"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                 requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "entering buy position"})
-                buy_pos(df79,s,df25,df,exp_1,exp_2,weekly_rollover,monthly_rollover,square_off,df54)
+                requests.post(SEND_URL1, json={'chat_id': CHAT_ID1, 'text': "entering buy position"})
+                buy_pos(opt_id_3_C,symbol_opt_3_C,expiry_opt_3_C,stk_C1,contract,df_break_C,price_break_C,exp_1,exp_2,weekly_rollover,monthly_rollover)
             # elif True:
-            elif (df['Sell'].iloc[-1] and currently_buy_holding):
-                print("Sell Signal Generated"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
-                requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "Sell Signal Generated"})  
-                requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': df.iloc[-1].to_string()})
-                signal_ongoing = "SELL"
-                print("suqaring off buy position"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
-                requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "suqaring off buy position"})
+            elif ((date.today().weekday() == 0) and not put_mon and current_time >= mon_time_P) or ((date.today().weekday() == 1) and not put_tue and current_time >= tue_time_P) or ((date.today().weekday() == 2) and not put_wed and current_time >= wed_time_P) or ((date.today().weekday() == 3) and not put_thu and current_time >= thu_time_P) or ((date.today().weekday() == 4) and not put_fri and current_time >= fri_time_P):
+                print("Put Order Punching"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
+                requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "Put Buy Signal Generated"})  
+                requests.post(SEND_URL1, json={'chat_id': CHAT_ID1, 'text': "Put Buy Signal Generated"})  
+                # requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': df.iloc[-1].to_string()})
+                weekly_rollover =""
+                monthly_rollover = ""
+                signal_ongoing = "BUY"
+                contract = "P"
+                print("entering buy position"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
+                requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "entering buy position"})
+                requests.post(SEND_URL1, json={'chat_id': CHAT_ID1, 'text': "entering buy position"})
+                buy_pos(opt_id_3_P,symbol_opt_3_P,expiry_opt_3_P,stk_P1,contract,df_break_P,price_break_P,exp_1,exp_2,weekly_rollover,monthly_rollover)
+            elif  (len((order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="C")]))>0) and ((order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="C")]) and ((date.today().weekday() != 0) and call_mon and current_time >= datetime.time(9,29,0)) or ((date.today().weekday() != 1) and call_tue and current_time >= datetime.time(10,15,0)) or ((date.today().weekday() != 2) and call_wed and current_time >= datetime.time(9,45,0)) or ((date.today().weekday() != 3) and call_thu and current_time >= datetime.time(9,45,0)) or ((date.today().weekday() != 4) and call_fri and current_time >= datetime.time(9,45,0))):
+                print("suqaring off position"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
+                requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "suqaring off position"})
+                requests.post(SEND_URL1, json={'chat_id': CHAT_ID1, 'text': "suqaring off position"})
                 order_complete = order_complete.sort_values(by=['leg'],ignore_index=True)
+                order_tobe_sqr_complete = order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="C")]
                 order_pending_tobe_cancel = order_pending
                 order_pending_complete_tobe_cancel = order_pending_complete
                 order_sqr_complete_cons = order_sqr_complete
-                order_tobe_sqr_complete = order_complete
-                order_complete = order_complete[0:0]
+                indx = order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="C")].index
+                order_complete = order_complete.drop(order_complete.index[indx]).reset_index()
                 order_sqr_complete = order_sqr_complete[0:0]
                 order_manage = order_manage[0:0]
                 order_pending = order_pending[0:0]
@@ -2944,34 +3175,224 @@ def hello_world():
                     gfile = drive.CreateFile({'parents' : [{'id' : folder}], 'title' : "order_sqr_complete_cons.txt"})
                     gfile.SetContentFile("order_sqr_complete_cons.txt")
                     gfile.Upload()
+                if order_tobe_sqr_complete:
+                    err_sqr = square_off(order_manage,order_tobe_sqr_complete,s)
+            elif  (len((order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="C")]))>0) and ((order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="P")]) and ((date.today().weekday() == 0) and put_mon and current_time >= datetime.time(14,45,0)) or ((date.today().weekday() == 1) and put_tue and current_time >= datetime.time(15,30,0)) or ((date.today().weekday() == 2) and put_wed and current_time >= datetime.time(14,45,0)) or ((date.today().weekday() == 3) and put_thu and current_time >= datetime.time(15,15,0)) or ((date.today().weekday() == 4) and put_fri and current_time >= datetime.time(14,40,0))):
+                current_time = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
+                print("suqaring off position"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
+                requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "suqaring off position"})
+                requests.post(SEND_URL1, json={'chat_id': CHAT_ID1, 'text': "suqaring off position"})
+                order_complete = order_complete.sort_values(by=['leg'],ignore_index=True)
+                order_tobe_sqr_complete = order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="P")]
+                order_pending_tobe_cancel = order_pending
+                order_pending_complete_tobe_cancel = order_pending_complete
+                order_sqr_complete_cons = order_sqr_complete
+                indx = order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="P")].index
+                order_complete = order_complete.drop(order_complete.index[indx]).reset_index()
+                order_sqr_complete = order_sqr_complete[0:0]
+                order_manage = order_manage[0:0]
+                order_pending = order_pending[0:0]
+                order_pending_complete = order_pending_complete[0:0]
+                kk = 0
+                ll = 0
+                mm = 0
+                ss = 0
+                tt = 0
+                yy = 0
+                xx = 0
+                for index, file in enumerate(file_list):
+                    if(file['title'] =="order_complete.txt"):
+                        kk = file['id']
+                    if(file['title'] =="order_manage.txt"):
+                        ll = file['id']
+                    if(file['title'] =="order_tobe_sqr_complete.txt"):
+                        mm = file['id']
+                    if(file['title'] =="order_pending.txt"):
+                        ss = file['id']
+                    if(file['title'] =="order_pending_complete.txt"):
+                        tt = file['id']
+                    if(file['title'] =="order_sqr_complete.txt"):
+                        yy = file['id']
+                    if(file['title'] =="order_sqr_complete_cons.txt"):
+                        xx = file['id']
+                if bool(kk):
+                    order_complete.to_csv("order_complete.txt", index=False)
+                    update_file = drive.CreateFile({'id': kk})
+                    update_file.SetContentFile("order_complete.txt")
+                    update_file.Upload()
+                if bool(mm):
+                    order_tobe_sqr_complete.to_csv("order_tobe_sqr_complete.txt", index=False)
+                    update_file = drive.CreateFile({'id': mm})
+                    update_file.SetContentFile("order_tobe_sqr_complete.txt")
+                    update_file.Upload()
+                else:
+                    order_tobe_sqr_complete.to_csv("order_tobe_sqr_complete.txt", index=False)
+                    gfile = drive.CreateFile({'parents' : [{'id' : folder}], 'title' : "order_tobe_sqr_complete.txt"})
+                    gfile.SetContentFile("order_tobe_sqr_complete.txt")
+                    gfile.Upload()
+                if bool(ll):
+                    order_manage.to_csv("order_manage.txt", index=False)
+                    update_file = drive.CreateFile({'id': ll})
+                    update_file.SetContentFile("order_manage.txt")
+                    update_file.Upload()
+                else:
+                    order_manage.to_csv("order_manage.txt", index=False)
+                    gfile = drive.CreateFile({'parents' : [{'id' : folder}], 'title' : "order_manage.txt"})
+                    gfile.SetContentFile("order_manage.txt")
+                    gfile.Upload()
+                if bool(ss):
+                    order_pending.to_csv("order_pending.txt", index=False)
+                    update_file = drive.CreateFile({'id': ss})
+                    update_file.SetContentFile("order_pending.txt")
+                    update_file.Upload()
+                else:
+                    order_pending.to_csv("order_pending.txt", index=False)
+                    gfile = drive.CreateFile({'parents' : [{'id' : folder}], 'title' : "order_pending.txt"})
+                    gfile.SetContentFile("order_pending.txt")
+                    gfile.Upload()
+                if bool(tt):
+                    order_pending_complete.to_csv("order_pending_complete.txt", index=False)
+                    update_file = drive.CreateFile({'id': tt})
+                    update_file.SetContentFile("order_pending_complete.txt")
+                    update_file.Upload()
+                else:
+                    order_pending_complete.to_csv("order_pending_complete.txt", index=False)
+                    gfile = drive.CreateFile({'parents' : [{'id' : folder}], 'title' : "order_pending_complete.txt"})
+                    gfile.SetContentFile("order_pending_complete.txt")
+                    gfile.Upload()
+                if bool(yy):
+                    order_sqr_complete.to_csv("order_sqr_complete.txt", index=False)
+                    update_file = drive.CreateFile({'id': yy})
+                    update_file.SetContentFile("order_sqr_complete.txt")
+                    update_file.Upload()
+                else:
+                    order_sqr_complete.to_csv("order_sqr_complete.txt", index=False)
+                    gfile = drive.CreateFile({'parents' : [{'id' : folder}], 'title' : "order_sqr_complete.txt"})
+                    gfile.SetContentFile("order_sqr_complete.txt")
+                    gfile.Upload()
+                if bool(xx):
+                    order_sqr_complete_cons.to_csv("order_sqr_complete_cons.txt", index=False)
+                    update_file = drive.CreateFile({'id': xx})
+                    update_file.SetContentFile("order_sqr_complete_cons.txt")
+                    update_file.Upload()
+                else:
+                    order_sqr_complete_cons.to_csv("order_sqr_complete_cons.txt", index=False)
+                    gfile = drive.CreateFile({'parents' : [{'id' : folder}], 'title' : "order_sqr_complete_cons.txt"})
+                    gfile.SetContentFile("order_sqr_complete_cons.txt")
+                    gfile.Upload()
+                if order_tobe_sqr_complete:
+                    err_sqr = square_off(order_manage,order_tobe_sqr_complete,s)
+            elif (current_time1>=datetime.time(15,30,0)):
+                # order_complete = order_complete[0:0]
+                order_sqr_complete = order_sqr_complete[0:0]
+                order_manage = order_manage[0:0]
+                order_pending = order_pending[0:0]
+                order_pending_complete = order_pending_complete[0:0]
+                kk = 0
+                ll = 0
+                mm = 0
+                ss = 0
+                tt = 0
+                yy = 0
+                xx = 0
+                for index, file in enumerate(file_list):
+                    if(file['title'] =="order_complete.txt"):
+                        kk = file['id']
+                    if(file['title'] =="order_manage.txt"):
+                        ll = file['id']
+                    if(file['title'] =="order_tobe_sqr_complete.txt"):
+                        mm = file['id']
+                    if(file['title'] =="order_pending.txt"):
+                        ss = file['id']
+                    if(file['title'] =="order_pending_complete.txt"):
+                        tt = file['id']
+                    if(file['title'] =="order_sqr_complete.txt"):
+                        yy = file['id']
+                    if(file['title'] =="order_sqr_complete_cons.txt"):
+                        xx = file['id']
+                if bool(kk):
+                    order_complete.to_csv("order_complete.txt", index=False)
+                    update_file = drive.CreateFile({'id': kk})
+                    update_file.SetContentFile("order_complete.txt")
+                    update_file.Upload()
+                if bool(mm):
+                    order_tobe_sqr_complete.to_csv("order_tobe_sqr_complete.txt", index=False)
+                    update_file = drive.CreateFile({'id': mm})
+                    update_file.SetContentFile("order_tobe_sqr_complete.txt")
+                    update_file.Upload()
+                else:
+                    order_tobe_sqr_complete.to_csv("order_tobe_sqr_complete.txt", index=False)
+                    gfile = drive.CreateFile({'parents' : [{'id' : folder}], 'title' : "order_tobe_sqr_complete.txt"})
+                    gfile.SetContentFile("order_tobe_sqr_complete.txt")
+                    gfile.Upload()
+                if bool(ll):
+                    order_manage.to_csv("order_manage.txt", index=False)
+                    update_file = drive.CreateFile({'id': ll})
+                    update_file.SetContentFile("order_manage.txt")
+                    update_file.Upload()
+                else:
+                    order_manage.to_csv("order_manage.txt", index=False)
+                    gfile = drive.CreateFile({'parents' : [{'id' : folder}], 'title' : "order_manage.txt"})
+                    gfile.SetContentFile("order_manage.txt")
+                    gfile.Upload()
+                if bool(ss):
+                    order_pending.to_csv("order_pending.txt", index=False)
+                    update_file = drive.CreateFile({'id': ss})
+                    update_file.SetContentFile("order_pending.txt")
+                    update_file.Upload()
+                else:
+                    order_pending.to_csv("order_pending.txt", index=False)
+                    gfile = drive.CreateFile({'parents' : [{'id' : folder}], 'title' : "order_pending.txt"})
+                    gfile.SetContentFile("order_pending.txt")
+                    gfile.Upload()
+                if bool(tt):
+                    order_pending_complete.to_csv("order_pending_complete.txt", index=False)
+                    update_file = drive.CreateFile({'id': tt})
+                    update_file.SetContentFile("order_pending_complete.txt")
+                    update_file.Upload()
+                else:
+                    order_pending_complete.to_csv("order_pending_complete.txt", index=False)
+                    gfile = drive.CreateFile({'parents' : [{'id' : folder}], 'title' : "order_pending_complete.txt"})
+                    gfile.SetContentFile("order_pending_complete.txt")
+                    gfile.Upload()
+                if bool(yy):
+                    order_sqr_complete.to_csv("order_sqr_complete.txt", index=False)
+                    update_file = drive.CreateFile({'id': yy})
+                    update_file.SetContentFile("order_sqr_complete.txt")
+                    update_file.Upload()
+                else:
+                    order_sqr_complete.to_csv("order_sqr_complete.txt", index=False)
+                    gfile = drive.CreateFile({'parents' : [{'id' : folder}], 'title' : "order_sqr_complete.txt"})
+                    gfile.SetContentFile("order_sqr_complete.txt")
+                    gfile.Upload()
 
 #             elif True:
             #*****square Future****
-                square_off = 0
-                err_sqr = 0
-                # if True:
-                err_sqr = square_off_buy(order_manage,order_tobe_sqr_complete,s)
-                if err_sqr < 1:
-                    print("sucees in sqr off"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
-                    currently_buy_holding = False
-                    currently_sell_holding = False
-                    hh = "currently_buy_holding,currently_sell_holding\nTrue,False"
-                    with open("hh.txt", "w") as f:
-                        f.write(hh)
-                    bb = ""
-                    nn = ""
-                    for index, file in enumerate(file_list):
-                        if(file['title'] =="hh.txt"):
-                            hh = file['id']
-                    if hh:
-                        update_file = drive.CreateFile({'id': hh})
-                        update_file.SetContentFile("hh.txt")
-                        update_file.Upload()
+                # square_off = 0
+                # err_sqr = 0
+                # # if True:
+                # err_sqr = square_off_buy(order_manage,order_tobe_sqr_complete,s)
+                # if err_sqr < 1:
+                #     print("success in sqr off"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
+                #     currently_buy_holding = False
+                #     currently_sell_holding = False
+                #     hh = "currently_buy_holding,currently_sell_holding\nTrue,False"
+                #     with open("hh.txt", "w") as f:
+                #         f.write(hh)
+                #     bb = ""
+                #     nn = ""
+                #     for index, file in enumerate(file_list):
+                #         if(file['title'] =="hh.txt"):
+                #             hh = file['id']
+                #     if hh:
+                #         update_file = drive.CreateFile({'id': hh})
+                #         update_file.SetContentFile("hh.txt")
+                #         update_file.Upload()
 
-                else:
-                    print("error in sqr off"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
+                # else:
+                #     print("error in sqr off"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
             current_time3 = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
-            period = pd.to_datetime(current_time3).ceil('5 min')
+            period = pd.to_datetime(current_time3).ceil('1 min')
             next_time = period - current_time3
             print("sleeping for seconds -"," ",(next_time-timedelta(seconds=10)).total_seconds(), datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
             time.sleep((next_time-timedelta(seconds=10)).total_seconds())
