@@ -782,6 +782,7 @@ def save_pos_buy(s,df25,df,exp_1,exp_2,weekly_rollover,monthly_rollover,df54):
 
 def hello_world():
     #logging.basicConfig(level=logging.DEBUG)
+    print("started"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
     global  TOKEN, CHAT_ID, SEND_URL,file_list,df79,df99,file_list,drive,TOKEN1, CHAT_ID1, SEND_URL1
     global  call_mon,call_tue,call_wed,call_thu,call_fri,kite
     global  put_mon,put_tue,put_wed,put_thu,put_fri
@@ -982,6 +983,7 @@ def hello_world():
     fri_starting_time_P = datetime.time(9,16,0)
 
     starting = 0
+    print("started",datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
     # if True:
     if (date.today().weekday() == 0 and current_time >= mon_time_C) or (date.today().weekday() == 1 and current_time >= tue_time_C) or (date.today().weekday() == 2 and current_time >= wed_time_C) or (date.today().weekday() == 3 and current_time >= thu_time_C) or (date.today().weekday() == 4 and current_time >= fri_time_C):
         starting = 1
