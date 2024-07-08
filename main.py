@@ -985,9 +985,9 @@ def hello_world():
     starting = 0
     print("started",datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
     # if True:
-    if (date.today().weekday() == 0 and current_time >= mon_time_C) or (date.today().weekday() == 1 and current_time >= tue_time_C) or (date.today().weekday() == 2 and current_time >= wed_time_C) or (date.today().weekday() == 3 and current_time >= thu_time_C) or (date.today().weekday() == 4 and current_time >= fri_time_C):
+    if (date.today().weekday() == 0 and current_time.time() >= mon_time_C) or (date.today().weekday() == 1 and current_time.time() >= tue_time_C) or (date.today().weekday() == 2 and current_time.time() >= wed_time_C) or (date.today().weekday() == 3 and current_time.time() >= thu_time_C) or (date.today().weekday() == 4 and current_time.time() >= fri_time_C):
         starting = 1
-    if (date.today().weekday() == 0 and current_time >= mon_time_P) or (date.today().weekday() == 1 and current_time >= tue_time_P) or (date.today().weekday() == 2 and current_time >= wed_time_P) or (date.today().weekday() == 3 and current_time >= thu_time_P) or (date.today().weekday() == 4 and current_time >= fri_time_P):
+    if (date.today().weekday() == 0 and current_time.time() >= mon_time_P) or (date.today().weekday() == 1 and current_time.time() >= tue_time_P) or (date.today().weekday() == 2 and current_time.time() >= wed_time_P) or (date.today().weekday() == 3 and current_time.time() >= thu_time_P) or (date.today().weekday() == 4 and current_time.time() >= fri_time_P):
         starting = 1
     while starting:
         current_time = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
