@@ -539,7 +539,8 @@ def order_place(s,file_list,drive,current_signal,opt_id_1,symbol_opt_1,price_opt
                 order_place_fail = 1
                 print("Failed to get LTP",e,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                 price = price_opt_1 + 2
-            if abs(((price - price_opt_1) / price_opt_1) * 100) > 25:
+            if False:
+            #if abs(((price - price_opt_1) / price_opt_1) * 100) > 25:
                 ord_plc = False 
                 print("price has crossed 25% band ",price," ",price_opt_1,datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                 status = ""
