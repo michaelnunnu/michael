@@ -2951,7 +2951,7 @@ def hello_world():
             from_datetime = datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()
             to_datetime = datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()
             interval = "minute"
-            print(instrument_token,from_datetime)
+            print(instrument_token,from_datetime,file=sys.stderr)
             check_time_C = datetime.time(9,29,0)
             check_time_P = datetime.time(9,29,0)
             if date.today().weekday() == 0:
@@ -2997,7 +2997,7 @@ def hello_world():
             symbol_opt_3_C = df25.loc[(df25['instrument_token']==opt_id_3_C)]['tradingsymbol'].values[0]
             expiry_opt_3_C = expiry_opt_2
             stk_C1 = int(df_stk.loc[df_stk[['diff']].idxmin(),"strike"].values[0])
-            print(stk_C1)
+            print(stk_C1,file=sys.stderr)
             # df = get_data(opt_id_3,fromm, fromm, "minute",s)
             df_break_C = pd.DataFrame(kite.historical_data(opt_id_3_C, fromm, fromm, "minute", continuous=False, oi=True))
             df_break_C['TIME1'] = df_break_C['date'].dt.time
@@ -3048,7 +3048,7 @@ def hello_world():
             # if not currently_buy_holding:
             order_complete['entry_time']= pd.to_datetime(order_complete['entry_time'])
             # if True:
-            if ((date.today().weekday() == 0) and not call_mon and current_time >= mon_time_C) or ((date.today().weekday() == 1) and not call_tue and current_time >= tue_time_C) or ((date.today().weekday() == 2) and not call_wed and current_time >= wed_time_C) or ((date.today().weekday() == 3) and not call_thu and current_time >= thu_time_C) or ((date.today().weekday() == 4) and not call_fri and current_time >= fri_time_C):
+            if ((date.today().weekday() == 0) and not call_mon and current_time.time() >= mon_time_C) or ((date.today().weekday() == 1) and not call_tue and current_time.time() >= tue_time_C) or ((date.today().weekday() == 2) and not call_wed and current_time.time() >= wed_time_C) or ((date.today().weekday() == 3) and not call_thu and current_time.time() >= thu_time_C) or ((date.today().weekday() == 4) and not call_fri and current_time.time() >= fri_time_C):
                 weekly_rollover =""
                 monthly_rollover = ""
                 print("Call Order Punching"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
@@ -3062,7 +3062,7 @@ def hello_world():
                 requests.post(SEND_URL1, json={'chat_id': CHAT_ID1, 'text': "entering buy position"})
                 buy_pos(opt_id_3_C,symbol_opt_3_C,expiry_opt_3_C,stk_C1,contract,df_break_C,price_break_C,exp_1,exp_2,weekly_rollover,monthly_rollover)
             # elif True:
-            elif ((date.today().weekday() == 0) and not put_mon and current_time >= mon_time_P) or ((date.today().weekday() == 1) and not put_tue and current_time >= tue_time_P) or ((date.today().weekday() == 2) and not put_wed and current_time >= wed_time_P) or ((date.today().weekday() == 3) and not put_thu and current_time >= thu_time_P) or ((date.today().weekday() == 4) and not put_fri and current_time >= fri_time_P):
+            elif ((date.today().weekday() == 0) and not put_mon and current_time.time() >= mon_time_P) or ((date.today().weekday() == 1) and not put_tue and current_time.time() >= tue_time_P) or ((date.today().weekday() == 2) and not put_wed and current_time.time() >= wed_time_P) or ((date.today().weekday() == 3) and not put_thu and current_time.time() >= thu_time_P) or ((date.today().weekday() == 4) and not put_fri and current_time.time() >= fri_time_P):
                 print("Put Order Punching"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                 requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "Put Buy Signal Generated"})  
                 requests.post(SEND_URL1, json={'chat_id': CHAT_ID1, 'text': "Put Buy Signal Generated"})  
