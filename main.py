@@ -2946,7 +2946,7 @@ def hello_world():
             # df["Sell"] = (df.close < df.supertrend) | (current_time1>=datetime.time(15,20,0))
             # print(df25.head(10))
             df25['expiry'] = pd.to_datetime(df25.expiry, format='%Y-%m-%d').dt.date
-            df85['expiry'] = pd.to_datetime(df25.expiry, format='%Y-%m-%d').dt.date
+            df85['expiry'] = pd.to_datetime(df85.expiry, format='%Y-%m-%d').dt.date
             instrument_token = df85.loc[(df85['name'] == "NIFTY BANK") & (df85['instrument_type'] == "EQ")]['instrument_token'].values[0]
             from_datetime = datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()
             to_datetime = datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()
