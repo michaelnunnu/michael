@@ -982,7 +982,7 @@ def hello_world():
     thu_starting_time_P = datetime.time(10,0,0)
     fri_starting_time_P = datetime.time(9,16,0)
 
-    starting = 0
+    starting = 1
     print("started",datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
     # if True:
     # if (date.today().weekday() == 0 and current_time.time() >= mon_time_C) or (date.today().weekday() == 1 and current_time.time() >= tue_time_C) or (date.today().weekday() == 2 and current_time.time() >= wed_time_C) or (date.today().weekday() == 3 and current_time.time() >= thu_time_C) or (date.today().weekday() == 4 and current_time.time() >= fri_time_C):
