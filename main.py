@@ -3046,10 +3046,10 @@ def hello_world():
                 price_break_P = df_break_P[df_break_P['TIME1'] < fri_time_P]['close'].iloc[-1]
             price_check_C = df_break_C['close'].iloc[-1]
             print("price_break_C ",price_break_C, file=sys.stderr)
-            print("last close price is ",price_check_C, file=sys.stderr)
+            print("last close price of call is ",price_check_C, file=sys.stderr)
             price_check_P = df_break_P['close'].iloc[-1]
-            print("price_break_C ",price_break_P, file=sys.stderr)
-            print("last close price is ",price_check_P, file=sys.stderr)
+            print("price_break_P ",price_break_P, file=sys.stderr)
+            print("last close price of put is ",price_check_P, file=sys.stderr)
             # print(currently_buy_holding,currently_sell_holding," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
             # df = df[(df['datetime'] <= (datetime.datetime.now()- pd.Timedelta(minutes = 5)))]
             # requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "Buy " +str(df['Buy'].iloc[-1])+" Sell "+str(df['Sell'].iloc[-1])})  
@@ -3057,7 +3057,7 @@ def hello_world():
             # if not currently_buy_holding:
             order_complete['entry_time']= pd.to_datetime(order_complete['entry_time'])
             # if True:
-            if (price_check_C > price_break_C) and ((date.today().weekday() == 0) and not call_mon and current_time.time() >= mon_time_C) or ((date.today().weekday() == 1) and not call_tue and current_time.time() >= tue_time_C) or ((date.today().weekday() == 2) and not call_wed and current_time.time() >= wed_time_C) or ((date.today().weekday() == 3) and not call_thu and current_time.time() >= thu_time_C) or ((date.today().weekday() == 4) and not call_fri and current_time.time() >= fri_time_C):
+            if (price_check_C > price_break_C) and (((date.today().weekday() == 0) and (not call_mon) and (current_time.time() >= mon_time_C)) or ((date.today().weekday() == 1) and (not call_tue) and (current_time.time() >= tue_time_C)) or ((date.today().weekday() == 2) and (not call_wed) and (current_time.time() >= wed_time_C)) or ((date.today().weekday() == 3) and (not call_thu) and (current_time.time() >= thu_time_C) or ((date.today().weekday() == 4) and (not call_fri) and (current_time.time() >= fri_time_C)))):
                 weekly_rollover =""
                 monthly_rollover = ""
                 print("Call Order Punching"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
@@ -3071,7 +3071,7 @@ def hello_world():
                 requests.post(SEND_URL1, json={'chat_id': CHAT_ID1, 'text': "entering buy position"})
                 buy_pos(opt_id_3_C,symbol_opt_3_C,expiry_opt_3_C,stk_C1,contract,df_break_C,price_check_C,exp_1,exp_2,weekly_rollover,monthly_rollover)
             # elif True:
-            elif (price_check_P > price_break_P) and ((date.today().weekday() == 0) and not put_mon and current_time.time() >= mon_time_P) or ((date.today().weekday() == 1) and not put_tue and current_time.time() >= tue_time_P) or ((date.today().weekday() == 2) and not put_wed and current_time.time() >= wed_time_P) or ((date.today().weekday() == 3) and not put_thu and current_time.time() >= thu_time_P) or ((date.today().weekday() == 4) and not put_fri and current_time.time() >= fri_time_P):
+            elif (price_check_P > price_break_P) and (((date.today().weekday() == 0) and (not put_mon) and (current_time.time() >= mon_time_P)) or ((date.today().weekday() == 1) and (not put_tue) and (current_time.time() >= tue_time_P)) or ((date.today().weekday() == 2) and (not put_wed) and (current_time.time() >= wed_time_P)) or ((date.today().weekday() == 3) and (not put_thu) and (current_time.time() >= thu_time_P)) or ((date.today().weekday() == 4) and (not put_fri) and (current_time.time() >= fri_time_P))):
                 print("Put Order Punching"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                 requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "Put Buy Signal Generated"})  
                 requests.post(SEND_URL1, json={'chat_id': CHAT_ID1, 'text': "Put Buy Signal Generated"})  
