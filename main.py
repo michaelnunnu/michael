@@ -3415,6 +3415,8 @@ def hello_world():
     
 start = st.sidebar.button("Start")
 exit_app = st.sidebar.button("Shut Down")
+exit_app1 = st.sidebar.button("Michael")
+
 if start:
     hello_world()
 if exit_app:
