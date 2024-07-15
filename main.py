@@ -3022,7 +3022,7 @@ def hello_world():
                 df_stk.at[ik,'price'] = y
                 df_stk.at[ik,'diff'] = abs(y - 200)
                 ik = ik + 1
-            opt_id_3_P = df25.loc[(df25['name'] == "BANKNIFTY") & (df25['strike'] == int(df_stk.loc[df_stk[['diff']].idxmin(),"strike"].values[0])) & (df25['instrument_type'] == "CE")]['instrument_token'].values[0]
+            opt_id_3_P = df25.loc[(df25['name'] == "BANKNIFTY") & (df25['strike'] == int(df_stk.loc[df_stk[['diff']].idxmin(),"strike"].values[0])) & (df25['instrument_type'] == "PE")]['instrument_token'].values[0]
             symbol_opt_3_P = df25.loc[(df25['instrument_token']==opt_id_3_P)]['tradingsymbol'].values[0]
             expiry_opt_3_P = expiry_opt_2
             stk_P1 = int(df_stk.loc[df_stk[['diff']].idxmin(),"strike"].values[0])
