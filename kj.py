@@ -38,7 +38,7 @@ d = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
 #utc_offset = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
 today = date.today()
 today1 = datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()
-print(datetime.datetime.now(pytz.timezone('Asia/Kolkata')).time(),d.minute,datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date(),file=sys.stderr)
+print("michael",datetime.datetime.now(pytz.timezone('Asia/Kolkata')).time(),d.minute,datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date(),file=sys.stderr)
 start_date = (datetime.datetime.now(pytz.timezone('Asia/Kolkata')).strftime('%Y-%m-%d'))
 if (datetime.datetime.now(pytz.timezone('Asia/Kolkata')).time() > datetime.time(0, 0,0)) and (datetime.datetime.now(pytz.timezone('Asia/Kolkata')).time() < datetime.time(9, 17, 0)):
     start_date = (datetime.datetime.now(pytz.timezone('Asia/Kolkata'))- timedelta(days=1)).strftime('%Y-%m-%d')
