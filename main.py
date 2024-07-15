@@ -1007,6 +1007,7 @@ def hello_world():
         if True:
 #             print(df79, file=sys.stderr) 
             print("vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
+            counter = 0
             while counter<10:
                 try:
                     file_list = drive.ListFile({'q' : f"'{folder}' in parents and trashed=false"}).GetList()
@@ -3407,7 +3408,7 @@ def hello_world():
                 period = pd.to_datetime(current_time3).ceil('1 min')
                 next_time = period - current_time3
                 print("sleeping for seconds -"," ",(next_time-timedelta(seconds=2)).total_seconds(), datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
-                time.sleep((next_time-timedelta(seconds=2)).total_seconds())
+                time.sleep(abs(next_time-timedelta(seconds=2)).total_seconds())
    
 # if __name__ == "__main__":
 #     hello_world()
