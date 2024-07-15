@@ -59,6 +59,7 @@ while i:
         i = 0
         print(early.index.strftime('%Y-%m-%d').values[0])
 fromm = early.index.strftime('%Y-%m-%d').values[0]
+print("michael kj fromm ",fromm,file=sys.stderr)
 # class kite:
 
 #     # Exchanges
