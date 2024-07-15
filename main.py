@@ -513,6 +513,7 @@ while i:
         i = 0
         print(early.index.strftime('%Y-%m-%d').values[0])
 fromm = early.index.strftime('%Y-%m-%d').values[0]
+print("michael main fromm ",fromm,file=sys.stderr)
 #fromm = "2024-03-28"
 
 def cancel_pending(s,order_pending_tobe_cancel,order_cancel):
