@@ -2976,98 +2976,97 @@ def hello_world():
             df_range['TIME1'] = df_range['date'].dt.time
             df25 = df25[(df25['name'] == "BANKNIFTY") & (df25['expiry'] >= today)]
             df25 = df25.sort_values(by=['expiry'])
-			price_check_C = 0
-			price_break_C = 0
-			price_check_P = 0
-			price_break_P = 0
-			if (((date.today().weekday() == 0) and (current_time.time() >= mon_time_C)) or ((date.today().weekday() == 1) and (current_time.time() >= tue_time_C)) or ((date.today().weekday() == 2) and (current_time.time() >= wed_time_C)) or ((date.today().weekday() == 3) and (current_time.time() >= thu_time_C)) or ((date.today().weekday() == 4) and (current_time.time() >= fri_time_C))):
-				df_stk=pd.DataFrame()
-				ik = 0
-				stk_C = int(math.floor(df_range[df_range['TIME1'] == check_time_C]['close'].values[0])/100)*100
-				for x in range(stk_C-1000, stk_C+1000,100):
-					opt_id_2 = df25.loc[(df25['name'] == "BANKNIFTY") & (df25['strike'] == x) & (df25['instrument_type'] == "CE")]['instrument_token'].values[0]
-					expiry_opt_2 = df25.loc[(df25['instrument_token']==opt_id_2)]['expiry'].values[0]
-					symbol_opt_2 = df25.loc[(df25['instrument_token']==opt_id_2)]['tradingsymbol'].values[0]
-					df_opt_2 = pd.DataFrame(kite.historical_data(opt_id_2, fromm, fromm, "minute", continuous=False, oi=True))
-					#df_opt_2 
-					df_opt_2['TIME1'] = df_opt_2['date'].dt.time
-					df_stk.at[ik,'strike'] = x
-					if len(df_opt_2[df_opt_2['TIME1'] == check_time_C]['close']) > 0:
-						y = df_opt_2[df_opt_2['TIME1'] == check_time_C]['close'].values[0]
-					else:
-						y = 0
-					df_stk.at[ik,'price'] = y
-					df_stk.at[ik,'diff'] = abs(y - 200)
-					ik = ik + 1
-				opt_id_3_C = df25.loc[(df25['name'] == "BANKNIFTY") & (df25['strike'] == int(df_stk.loc[df_stk[['diff']].idxmin(),"strike"].values[0])) & (df25['instrument_type'] == "CE")]['instrument_token'].values[0]
-				symbol_opt_3_C = df25.loc[(df25['instrument_token']==opt_id_3_C)]['tradingsymbol'].values[0]
-				expiry_opt_3_C = expiry_opt_2
-				stk_C1 = int(df_stk.loc[df_stk[['diff']].idxmin(),"strike"].values[0])
-				print(stk_C1,file=sys.stderr)
-				# df = get_data(opt_id_3,fromm, fromm, "minute",s)
-				time.sleep(3)
-				df_break_C = pd.DataFrame(kite.historical_data(opt_id_3_C, fromm, fromm, "minute", continuous=False, oi=True))
-				df_break_C['TIME1'] = df_break_C['date'].dt.time
-				# price_break_C = df_break_C[df_break_C['TIME1'] < mon_time_C]['close'].iloc[-1]
-				# price_check_C = df_break_C['close'].iloc[-1]
-				# print("price_break_C ",price_break_C, file=sys.stderr)
-				# print("last close price is ",price_check_C, file=sys.stderr)
-				if date.today().weekday() == 0:
-					price_break_C = df_break_C[df_break_C['TIME1'] < mon_time_C]['close'].iloc[-1]
-				elif date.today().weekday() == 1:
-					price_break_C = df_break_C[df_break_C['TIME1'] < tue_time_C]['close'].iloc[-1]
-				elif date.today().weekday() == 2:
-					price_break_C = df_break_C[df_break_C['TIME1'] < wed_time_C]['close'].iloc[-1]
-				elif date.today().weekday() == 3:
-					price_break_C = df_break_C[df_break_C['TIME1'] < thu_time_C]['close'].iloc[-1]
-				elif date.today().weekday() == 4:
-					price_break_C = df_break_C[df_break_C['TIME1'] < fri_time_C]['close'].iloc[-1]
+            price_check_C = 0
+            price_break_C = 0
+            price_check_P = 0
+            price_break_P = 0
+            if (current_time.time() >= check_time_C):
+                df_stk=pd.DataFrame()
+                ik = 0
+                stk_C = int(math.floor(df_range[df_range['TIME1'] == check_time_C]['close'].values[0])/100)*100
+                for x in range(stk_C-1000, stk_C+1000,100):
+                    opt_id_2 = df25.loc[(df25['name'] == "BANKNIFTY") & (df25['strike'] == x) & (df25['instrument_type'] == "CE")]['instrument_token'].values[0]
+                    expiry_opt_2 = df25.loc[(df25['instrument_token']==opt_id_2)]['expiry'].values[0]
+                    symbol_opt_2 = df25.loc[(df25['instrument_token']==opt_id_2)]['tradingsymbol'].values[0]
+                    df_opt_2 = pd.DataFrame(kite.historical_data(opt_id_2, fromm, fromm, "minute", continuous=False, oi=True))
+                                #df_opt_2 
+                    df_opt_2['TIME1'] = df_opt_2['date'].dt.time
+                    df_stk.at[ik,'strike'] = x
+                    if len(df_opt_2[df_opt_2['TIME1'] == check_time_C]['close']) > 0:
+                        y = df_opt_2[df_opt_2['TIME1'] == check_time_C]['close'].values[0]
+                    else:
+                        y = 0
+                    df_stk.at[ik,'price'] = y
+                    df_stk.at[ik,'diff'] = abs(y - 200)
+                    ik = ik + 1
+                opt_id_3_C = df25.loc[(df25['name'] == "BANKNIFTY") & (df25['strike'] == int(df_stk.loc[df_stk[['diff']].idxmin(),"strike"].values[0])) & (df25['instrument_type'] == "CE")]['instrument_token'].values[0]
+                symbol_opt_3_C = df25.loc[(df25['instrument_token']==opt_id_3_C)]['tradingsymbol'].values[0]
+                expiry_opt_3_C = expiry_opt_2
+                stk_C1 = int(df_stk.loc[df_stk[['diff']].idxmin(),"strike"].values[0])
+                print(stk_C1,file=sys.stderr)
+                # df = get_data(opt_id_3,fromm, fromm, "minute",s)
+                time.sleep(3)
+                df_break_C = pd.DataFrame(kite.historical_data(opt_id_3_C, fromm, fromm, "minute", continuous=False, oi=True))
+                df_break_C['TIME1'] = df_break_C['date'].dt.time
+                # price_break_C = df_break_C[df_break_C['TIME1'] < mon_time_C]['close'].iloc[-1]
+                # price_check_C = df_break_C['close'].iloc[-1]
+                # print("price_break_C ",price_break_C, file=sys.stderr)
+                # print("last close price is ",price_check_C, file=sys.stderr)
+                if date.today().weekday() == 0:
+                    price_break_C = df_break_C[df_break_C['TIME1'] < mon_time_C]['close'].iloc[-1]
+                elif date.today().weekday() == 1:
+                    price_break_C = df_break_C[df_break_C['TIME1'] < tue_time_C]['close'].iloc[-1]
+                elif date.today().weekday() == 2:
+                    price_break_C = df_break_C[df_break_C['TIME1'] < wed_time_C]['close'].iloc[-1]
+                elif date.today().weekday() == 3:
+                    price_break_C = df_break_C[df_break_C['TIME1'] < thu_time_C]['close'].iloc[-1]
+                elif date.today().weekday() == 4:
+                    price_break_C = df_break_C[df_break_C['TIME1'] < fri_time_C]['close'].iloc[-1]
 
-				price_check_C = df_break_C['close'].iloc[-1]
-				print("price_break_C ",price_break_C, file=sys.stderr)
-				print("last close price of call is ",price_check_C, file=sys.stderr)
+                price_check_C = df_break_C['close'].iloc[-1]
+                print("price_break_C ",price_break_C, file=sys.stderr)
+                print("last close price of call is ",price_check_C, file=sys.stderr)
+            if (current_time.time() >= check_time_P):
+                df_stk=pd.DataFrame()
+                ik = 0
+                stk_P = int(math.floor(df_range[df_range['TIME1'] == check_time_P]['close'].values[0])/100)*100
+                for x in range(stk_P-1000, stk_P+1000,100):
+                    opt_id_2 = df25.loc[(df25['name'] == "BANKNIFTY") & (df25['strike'] == x) & (df25['instrument_type'] == "PE")]['instrument_token'].values[0]
+                    expiry_opt_2 = df25.loc[(df25['instrument_token']==opt_id_2)]['expiry'].values[0]
+                    symbol_opt_2 = df25.loc[(df25['instrument_token']==opt_id_2)]['tradingsymbol'].values[0]
+                    df_opt_2 = pd.DataFrame(kite.historical_data(opt_id_2, fromm, fromm, "minute", continuous=False, oi=True))
+                    #df_opt_2 
+                    df_opt_2['TIME1'] = df_opt_2['date'].dt.time
+                    df_stk.at[ik,'strike'] = x
+                    if len(df_opt_2[df_opt_2['TIME1'] == check_time_P]['close']) > 0:
+                        y = df_opt_2[df_opt_2['TIME1'] == check_time_P]['close'].values[0]
+                    else:
+                        y = 0
+                    df_stk.at[ik,'price'] = y
+                    df_stk.at[ik,'diff'] = abs(y - 200)
+                    ik = ik + 1
+                opt_id_3_P = df25.loc[(df25['name'] == "BANKNIFTY") & (df25['strike'] == int(df_stk.loc[df_stk[['diff']].idxmin(),"strike"].values[0])) & (df25['instrument_type'] == "PE")]['instrument_token'].values[0]
+                symbol_opt_3_P = df25.loc[(df25['instrument_token']==opt_id_3_P)]['tradingsymbol'].values[0]
+                expiry_opt_3_P = expiry_opt_2
+                stk_P1 = int(df_stk.loc[df_stk[['diff']].idxmin(),"strike"].values[0])
+                # df = get_data(opt_id_3,fromm, fromm, "minute",s)
+                df_break_P = pd.DataFrame(kite.historical_data(opt_id_3_P, fromm, fromm, "minute", continuous=False, oi=True))
+                df_break_P['TIME1'] = df_break_P['date'].dt.time
+                
+                if date.today().weekday() == 0:
+                    price_break_P = df_break_P[df_break_P['TIME1'] < mon_time_P]['close'].iloc[-1]
+                elif date.today().weekday() == 1:
+                    price_break_P = df_break_P[df_break_P['TIME1'] < tue_time_P]['close'].iloc[-1]
+                elif date.today().weekday() == 2:
+                    price_break_P = df_break_P[df_break_P['TIME1'] < wed_time_P]['close'].iloc[-1]
+                elif date.today().weekday() == 3:
+                    price_break_P = df_break_P[df_break_P['TIME1'] < thu_time_P]['close'].iloc[-1]
+                elif date.today().weekday() == 4:
+                    price_break_P = df_break_P[df_break_P['TIME1'] < fri_time_P]['close'].iloc[-1]
 
-			if (((date.today().weekday() == 0) and (current_time.time() >= mon_time_P)) or ((date.today().weekday() == 1) and (current_time.time() >= tue_time_P)) or ((date.today().weekday() == 2) and (current_time.time() >= wed_time_P)) or ((date.today().weekday() == 3) and (current_time.time() >= thu_time_P)) or ((date.today().weekday() == 4) and (current_time.time() >= fri_time_P))):
-				df_stk=pd.DataFrame()
-				ik = 0
-				stk_P = int(math.floor(df_range[df_range['TIME1'] == check_time_P]['close'].values[0])/100)*100
-				for x in range(stk_P-1000, stk_P+1000,100):
-					opt_id_2 = df25.loc[(df25['name'] == "BANKNIFTY") & (df25['strike'] == x) & (df25['instrument_type'] == "PE")]['instrument_token'].values[0]
-					expiry_opt_2 = df25.loc[(df25['instrument_token']==opt_id_2)]['expiry'].values[0]
-					symbol_opt_2 = df25.loc[(df25['instrument_token']==opt_id_2)]['tradingsymbol'].values[0]
-					df_opt_2 = pd.DataFrame(kite.historical_data(opt_id_2, fromm, fromm, "minute", continuous=False, oi=True))
-					#df_opt_2 
-					df_opt_2['TIME1'] = df_opt_2['date'].dt.time
-					df_stk.at[ik,'strike'] = x
-					if len(df_opt_2[df_opt_2['TIME1'] == check_time_P]['close']) > 0:
-						y = df_opt_2[df_opt_2['TIME1'] == check_time_P]['close'].values[0]
-					else:
-						y = 0
-					df_stk.at[ik,'price'] = y
-					df_stk.at[ik,'diff'] = abs(y - 200)
-					ik = ik + 1
-				opt_id_3_P = df25.loc[(df25['name'] == "BANKNIFTY") & (df25['strike'] == int(df_stk.loc[df_stk[['diff']].idxmin(),"strike"].values[0])) & (df25['instrument_type'] == "PE")]['instrument_token'].values[0]
-				symbol_opt_3_P = df25.loc[(df25['instrument_token']==opt_id_3_P)]['tradingsymbol'].values[0]
-				expiry_opt_3_P = expiry_opt_2
-				stk_P1 = int(df_stk.loc[df_stk[['diff']].idxmin(),"strike"].values[0])
-				# df = get_data(opt_id_3,fromm, fromm, "minute",s)
-				df_break_P = pd.DataFrame(kite.historical_data(opt_id_3_P, fromm, fromm, "minute", continuous=False, oi=True))
-				df_break_P['TIME1'] = df_break_P['date'].dt.time
-				
-				if date.today().weekday() == 0:
-					price_break_P = df_break_P[df_break_P['TIME1'] < mon_time_P]['close'].iloc[-1]
-				elif date.today().weekday() == 1:
-					price_break_P = df_break_P[df_break_P['TIME1'] < tue_time_P]['close'].iloc[-1]
-				elif date.today().weekday() == 2:
-					price_break_P = df_break_P[df_break_P['TIME1'] < wed_time_P]['close'].iloc[-1]
-				elif date.today().weekday() == 3:
-					price_break_P = df_break_P[df_break_P['TIME1'] < thu_time_P]['close'].iloc[-1]
-				elif date.today().weekday() == 4:
-					price_break_P = df_break_P[df_break_P['TIME1'] < fri_time_P]['close'].iloc[-1]
-
-				price_check_P = df_break_P['close'].iloc[-1]
-				print("price_break_P ",price_break_P, file=sys.stderr)
-				print("last close price of put is ",price_check_P, file=sys.stderr)
+                price_check_P = df_break_P['close'].iloc[-1]
+                print("price_break_P ",price_break_P, file=sys.stderr)
+                print("last close price of put is ",price_check_P, file=sys.stderr)
             # print(currently_buy_holding,currently_sell_holding," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
             # df = df[(df['datetime'] <= (datetime.datetime.now()- pd.Timedelta(minutes = 5)))]
             # requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "Buy " +str(df['Buy'].iloc[-1])+" Sell "+str(df['Sell'].iloc[-1])})  
