@@ -3059,7 +3059,7 @@ def hello_world():
             # if not currently_buy_holding:
             order_complete['entry_time']= pd.to_datetime(order_complete['entry_time'])
             # if True:
-            if (price_check_C > price_break_C) and (((date.today().weekday() == 0) and (not call_mon) and (current_time.time() >= mon_time_C)) or ((date.today().weekday() == 1) and (not call_tue) and (current_time.time() >= tue_time_C)) or ((date.today().weekday() == 2) and (not call_wed) and (current_time.time() >= wed_time_C)) or ((date.today().weekday() == 3) and (not call_thu) and (current_time.time() >= thu_time_C) or ((date.today().weekday() == 4) and (not call_fri) and (current_time.time() >= fri_time_C)))):
+            if (price_check_C > price_break_C) and (((date.today().weekday() == 0) and (not call_mon) and (current_time.time() >= mon_time_C)) or ((date.today().weekday() == 1) and (not call_tue) and (current_time.time() >= tue_time_C)) or ((date.today().weekday() == 2) and (not call_wed) and (current_time.time() >= wed_time_C)) or ((date.today().weekday() == 3) and (not call_thu) and (current_time.time() >= thu_time_C)) or ((date.today().weekday() == 4) and (not call_fri) and (current_time.time() >= fri_time_C)))):
                 weekly_rollover =""
                 monthly_rollover = ""
                 print("Call Order Punching"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
