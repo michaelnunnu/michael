@@ -1432,7 +1432,13 @@ def hello_world():
                     gfile.SetContentFile("order_tobe_cancel_complete.txt")
                     gfile.Upload()
             # file_list = drive.ListFile({'q' : f"'{folder}' in parents and trashed=false"}).GetList()
-
+            while counter<10:
+                try:
+                    file_list = drive.ListFile({'q' : f"'{folder}' in parents and trashed=false"}).GetList()
+                    counter=10
+                except Exception as e:
+                    logger.error(e)
+                    counter=counter+1
             for index, file in enumerate(file_list):
                 #print(index+1, 'file downloaded : ', file['title'])
                 counter=0
