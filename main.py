@@ -1008,6 +1008,8 @@ def hello_world():
         if True:
 #             print(df79, file=sys.stderr) 
             print("vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
+            requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "code running "+str(current_time.date())+" "+str(current_time.time())})
+            requests.post(SEND_URL1, json={'chat_id': CHAT_ID1, 'text': "code running "+str(current_time.date())+" "+str(current_time.time())})
             counter = 0
             while counter<10:
                 try:
