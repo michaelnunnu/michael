@@ -2903,7 +2903,7 @@ def hello_world():
                     for mj in range(0,len(order_complete)):
                         df_opt = pd.DataFrame(kite.historical_data(order_complete['instrument_id'][mj], fromm, fromm, "minute", continuous=False, oi=True))
                         s = kite
-                        currnt_profit[mj] = round((order_complete['entry_price'][mj] - df_opt['close'].iloc[-1])*order_complete['qty'][mj],2) if order_complete['leg'][mj] == "leg1" else round((df_opt['close'].iloc[-1] - order_complete['entry_price'][mj])*order_complete['qty'][mj],2)
+                        currnt_profit[mj] = round((df_opt['close'].iloc[-1] - order_complete['entry_price'][mj])*order_complete['qty'][mj],2) if order_complete['leg'][mj] == "leg1" else round((order_complete['entry_price'][mj] - df_opt['close'].iloc[-1])*order_complete['qty'][mj],2)
                         instru[mj] = order_complete['instru'][mj]
                         strike[mj] = order_complete['strike'][mj]
                         contract[mj] = order_complete['contract'][mj]
