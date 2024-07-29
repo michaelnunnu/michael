@@ -3013,7 +3013,7 @@ def hello_world():
                 symbol_opt_3_C = df25.loc[(df25['instrument_token']==opt_id_3_C)]['tradingsymbol'].values[0]
                 expiry_opt_3_C = expiry_opt_2
                 stk_C1 = int(df_stk.loc[df_stk[['diff']].idxmin(),"strike"].values[0])
-                print(stk_C1,file=sys.stderr)
+                print("call strike ",stk_C1,file=sys.stderr)
                 # df = get_data(opt_id_3,fromm, fromm, "minute",s)
                 time.sleep(3)
                 df_break_C = pd.DataFrame(kite.historical_data(opt_id_3_C, fromm, fromm, "minute", continuous=False, oi=True))
@@ -3061,6 +3061,7 @@ def hello_world():
                 symbol_opt_3_P = df25.loc[(df25['instrument_token']==opt_id_3_P)]['tradingsymbol'].values[0]
                 expiry_opt_3_P = expiry_opt_2
                 stk_P1 = int(df_stk.loc[df_stk[['diff']].idxmin(),"strike"].values[0])
+                print("put strike ",stk_P1,file=sys.stderr)
                 # df = get_data(opt_id_3,fromm, fromm, "minute",s)
                 df_break_P = pd.DataFrame(kite.historical_data(opt_id_3_P, fromm, fromm, "minute", continuous=False, oi=True))
                 df_break_P['TIME1'] = df_break_P['date'].dt.time
