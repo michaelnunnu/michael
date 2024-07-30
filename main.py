@@ -3018,6 +3018,7 @@ def hello_world():
                 time.sleep(3)
                 df_break_C = pd.DataFrame(kite.historical_data(opt_id_3_C, fromm, fromm, "minute", continuous=False, oi=True))
                 df_break_C['TIME1'] = df_break_C['date'].dt.time
+                df_check_C = df_break_C
                 
                 # price_break_C = df_break_C[df_break_C['TIME1'] < mon_time_C]['close'].iloc[-1]
                 # price_check_C = df_break_C['close'].iloc[-1]
@@ -3041,7 +3042,7 @@ def hello_world():
                     #price_break_C1 = df_break_C[df_break_C['TIME1'] < fri_time_C]['close'].iloc[-1]
 
                 price_break_C1 = df_break_C['close'].max()
-                price_check_C = df_break_C['close'].iloc[-1]
+                price_check_C = df_check_C['close'].iloc[-1]
                 price_break_C2 = df_break_C['close'].min()
                 #df_break_C[df_break_C['TIME1'] == check_time_C]['close'].values[0]
                 print("price_break_C1 high time ",price_break_C1, file=sys.stderr)
