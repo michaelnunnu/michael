@@ -3018,23 +3018,32 @@ def hello_world():
                 time.sleep(3)
                 df_break_C = pd.DataFrame(kite.historical_data(opt_id_3_C, fromm, fromm, "minute", continuous=False, oi=True))
                 df_break_C['TIME1'] = df_break_C['date'].dt.time
+                
                 # price_break_C = df_break_C[df_break_C['TIME1'] < mon_time_C]['close'].iloc[-1]
                 # price_check_C = df_break_C['close'].iloc[-1]
                 # print("price_break_C ",price_break_C, file=sys.stderr)
                 # print("last close price is ",price_check_C, file=sys.stderr)
                 if date.today().weekday() == 0:
-                    price_break_C1 = df_break_C[df_break_C['TIME1'] < mon_time_C]['close'].iloc[-1]
+                    df_break_C = df_break_C[(df_break_C['TIME1']>=check_time_C) & (df_break_C['TIME1'] < mon_time_C)]
+                    #price_break_C1 = df_break_C['close'].max()
+                    #df_break_C[df_break_C['TIME1'] < mon_time_C]['close'].iloc[-1]
                 elif date.today().weekday() == 1:
-                    price_break_C1 = df_break_C[df_break_C['TIME1'] < tue_time_C]['close'].iloc[-1]
+                    df_break_C = df_break_C[(df_break_C['TIME1']>=check_time_C) & (df_break_C['TIME1'] < tue_time_C)]
+                    #price_break_C1 = df_break_C[df_break_C['TIME1'] < tue_time_C]['close'].iloc[-1]
                 elif date.today().weekday() == 2:
-                    price_break_C1 = df_break_C[df_break_C['TIME1'] < wed_time_C]['close'].iloc[-1]
+                    df_break_C = df_break_C[(df_break_C['TIME1']>=check_time_C) & (df_break_C['TIME1'] < wed_time_C)]
+                    #price_break_C1 = df_break_C[df_break_C['TIME1'] < wed_time_C]['close'].iloc[-1]
                 elif date.today().weekday() == 3:
-                    price_break_C1 = df_break_C[df_break_C['TIME1'] < thu_time_C]['close'].iloc[-1]
+                    df_break_C = df_break_C[(df_break_C['TIME1']>=check_time_C) & (df_break_C['TIME1'] < thu_time_C)]
+                    #price_break_C1 = df_break_C[df_break_C['TIME1'] < thu_time_C]['close'].iloc[-1]
                 elif date.today().weekday() == 4:
-                    price_break_C1 = df_break_C[df_break_C['TIME1'] < fri_time_C]['close'].iloc[-1]
+                    df_break_C = df_break_C[(df_break_C['TIME1']>=check_time_C) & (df_break_C['TIME1'] < fri_time_C)]
+                    #price_break_C1 = df_break_C[df_break_C['TIME1'] < fri_time_C]['close'].iloc[-1]
 
+                price_break_C1 = df_break_C['close'].max()
                 price_check_C = df_break_C['close'].iloc[-1]
-                price_break_C2 = df_break_C[df_break_C['TIME1'] == check_time_C]['close'].values[0]
+                price_break_C2 = df_break_C['close'].min()
+                #df_break_C[df_break_C['TIME1'] == check_time_C]['close'].values[0]
                 print("price_break_C1 high time ",price_break_C1, file=sys.stderr)
                 print("price_break_C2 low time ",price_break_C2, file=sys.stderr)
                 print("last close price of call is ",price_check_C, file=sys.stderr)
