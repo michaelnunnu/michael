@@ -3092,6 +3092,7 @@ def hello_world():
                 print("price_break_P1 high time ",price_break_P1, file=sys.stderr)
                 print("price_break_P1 low time ",price_break_P2, file=sys.stderr)
                 print("last close price of put is ",price_check_P, file=sys.stderr)
+                print((len((order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="C")]))>0), file=sys.stderr)
             # print(currently_buy_holding,currently_sell_holding," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
             # df = df[(df['datetime'] <= (datetime.datetime.now()- pd.Timedelta(minutes = 5)))]
             # requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "Buy " +str(df['Buy'].iloc[-1])+" Sell "+str(df['Sell'].iloc[-1])})  
