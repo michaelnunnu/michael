@@ -3100,6 +3100,9 @@ def hello_world():
             # if not currently_buy_holding:
             order_complete['entry_time']= pd.to_datetime(order_complete['entry_time'])
             print((len((order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="C")]))>0), file=sys.stderr)
+            print((order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="C")]), file=sys.stderr)
+            print(((date.today().weekday() != 0) and call_mon and current_time >= datetime.time(9,29,0)), file=sys.stderr)
+            
             # if True:
             # if (price_check_C > price_break_C1) and (price_check_C > price_break_C2) and (current_time1 < datetime.time(15,30,0)) and (((date.today().weekday() == 0) and (not call_mon) and (current_time.time() >= mon_time_C)) or ((date.today().weekday() == 1) and (not call_tue) and (current_time.time() >= tue_time_C)) or ((date.today().weekday() == 2) and (not call_wed) and (current_time.time() >= wed_time_C)) or ((date.today().weekday() == 3) and (not call_thu) and (current_time.time() >= thu_time_C)) or ((date.today().weekday() == 4) and (not call_fri) and (current_time.time() >= fri_time_C))):
             if (((date.today().weekday() == 0) and (not call_mon) and (current_time.time() == mon_time_C)) or ((date.today().weekday() == 1) and (not call_tue) and (current_time.time() == tue_time_C)) or ((date.today().weekday() == 2) and (not call_wed) and (current_time.time() == wed_time_C)) or ((date.today().weekday() == 3) and (not call_thu) and (current_time.time() == thu_time_C)) or ((date.today().weekday() == 4) and (not call_fri) and (current_time.time() == fri_time_C))):
