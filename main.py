@@ -3099,9 +3099,9 @@ def hello_world():
             # requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': df.iloc[-1].to_string()})
             # if not currently_buy_holding:
             order_complete['entry_time']= pd.to_datetime(order_complete['entry_time'])
-            print((len((order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="C")]))>0), file=sys.stderr)
-            print((order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="C")]), file=sys.stderr)
-            print(((date.today().weekday() != 0) and call_mon and current_time >= datetime.time(9,29,0)), file=sys.stderr)
+            # print((len((order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="C")]))>0), file=sys.stderr)
+            # print((order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="C")]), file=sys.stderr)
+            # print(((date.today().weekday() != 0) and call_mon and current_time >= datetime.time(9,29,0)), file=sys.stderr)
             
             # if True:
             # if (price_check_C > price_break_C1) and (price_check_C > price_break_C2) and (current_time1 < datetime.time(15,30,0)) and (((date.today().weekday() == 0) and (not call_mon) and (current_time.time() >= mon_time_C)) or ((date.today().weekday() == 1) and (not call_tue) and (current_time.time() >= tue_time_C)) or ((date.today().weekday() == 2) and (not call_wed) and (current_time.time() >= wed_time_C)) or ((date.today().weekday() == 3) and (not call_thu) and (current_time.time() >= thu_time_C)) or ((date.today().weekday() == 4) and (not call_fri) and (current_time.time() >= fri_time_C))):
@@ -3133,7 +3133,7 @@ def hello_world():
                 requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "entering buy position"})
                 requests.post(SEND_URL1, json={'chat_id': CHAT_ID1, 'text': "entering buy position"})
                 buy_pos(opt_id_3_P,symbol_opt_3_P,expiry_opt_3_P,stk_P1,contract,df_break_P,price_check_P,exp_1,exp_2,weekly_rollover,monthly_rollover)
-            elif  (len((order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="C")]))>0) and ((order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="C")]) and (((date.today().weekday() != 0) and call_mon and current_time >= datetime.time(9,29,0)) or ((date.today().weekday() != 1) and call_tue and current_time >= datetime.time(10,15,0)) or ((date.today().weekday() != 2) and call_wed and current_time >= datetime.time(9,45,0)) or ((date.today().weekday() != 3) and call_thu and current_time >= datetime.time(9,45,0)) or ((date.today().weekday() != 4) and call_fri and current_time >= datetime.time(9,45,0)))):
+            elif  (len((order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="C")]))>0) and (((date.today().weekday() != 0) and call_mon and current_time.time() >= datetime.time(9,29,0)) or ((date.today().weekday() != 1) and call_tue and current_time.time() >= datetime.time(10,15,0)) or ((date.today().weekday() != 2) and call_wed and current_time.time() >= datetime.time(9,45,0)) or ((date.today().weekday() != 3) and call_thu and current_time.time() >= datetime.time(9,45,0)) or ((date.today().weekday() != 4) and call_fri and current_time.time() >= datetime.time(9,45,0)))):
                 print("suqaring off position"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                 requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "suqaring off position"})
                 requests.post(SEND_URL1, json={'chat_id': CHAT_ID1, 'text': "suqaring off position"})
@@ -3237,7 +3237,7 @@ def hello_world():
                     gfile.Upload()
                 if order_tobe_sqr_complete:
                     err_sqr = square_off(order_manage,order_tobe_sqr_complete,s)
-            elif  (len((order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="C")]))>0) and ((order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="P")]) and ((date.today().weekday() == 0) and put_mon and current_time >= datetime.time(14,45,0)) or ((date.today().weekday() == 1) and put_tue and current_time >= datetime.time(15,30,0)) or ((date.today().weekday() == 2) and put_wed and current_time >= datetime.time(14,45,0)) or ((date.today().weekday() == 3) and put_thu and current_time >= datetime.time(15,15,0)) or ((date.today().weekday() == 4) and put_fri and current_time >= datetime.time(14,40,0))):
+            elif  (len((order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="C")]))>0) and ((date.today().weekday() == 0) and put_mon and current_time.time() >= datetime.time(14,45,0)) or ((date.today().weekday() == 1) and put_tue and current_time.time() >= datetime.time(15,30,0)) or ((date.today().weekday() == 2) and put_wed and current_time.time() >= datetime.time(14,45,0)) or ((date.today().weekday() == 3) and put_thu and current_time.time() >= datetime.time(15,15,0)) or ((date.today().weekday() == 4) and put_fri and current_time.time() >= datetime.time(14,40,0))):
                 current_time = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
                 print("suqaring off position"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                 requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "suqaring off position"})
