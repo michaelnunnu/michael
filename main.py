@@ -3092,13 +3092,14 @@ def hello_world():
                 print("price_break_P1 high time ",price_break_P1, file=sys.stderr)
                 print("price_break_P1 low time ",price_break_P2, file=sys.stderr)
                 print("last close price of put is ",price_check_P, file=sys.stderr)
-                print((len((order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="C")]))>0), file=sys.stderr)
+                
             # print(currently_buy_holding,currently_sell_holding," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
             # df = df[(df['datetime'] <= (datetime.datetime.now()- pd.Timedelta(minutes = 5)))]
             # requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "Buy " +str(df['Buy'].iloc[-1])+" Sell "+str(df['Sell'].iloc[-1])})  
             # requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': df.iloc[-1].to_string()})
             # if not currently_buy_holding:
             order_complete['entry_time']= pd.to_datetime(order_complete['entry_time'])
+            print((len((order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="C")]))>0), file=sys.stderr)
             # if True:
             # if (price_check_C > price_break_C1) and (price_check_C > price_break_C2) and (current_time1 < datetime.time(15,30,0)) and (((date.today().weekday() == 0) and (not call_mon) and (current_time.time() >= mon_time_C)) or ((date.today().weekday() == 1) and (not call_tue) and (current_time.time() >= tue_time_C)) or ((date.today().weekday() == 2) and (not call_wed) and (current_time.time() >= wed_time_C)) or ((date.today().weekday() == 3) and (not call_thu) and (current_time.time() >= thu_time_C)) or ((date.today().weekday() == 4) and (not call_fri) and (current_time.time() >= fri_time_C))):
             if (((date.today().weekday() == 0) and (not call_mon) and (current_time.time() == mon_time_C)) or ((date.today().weekday() == 1) and (not call_tue) and (current_time.time() == tue_time_C)) or ((date.today().weekday() == 2) and (not call_wed) and (current_time.time() == wed_time_C)) or ((date.today().weekday() == 3) and (not call_thu) and (current_time.time() == thu_time_C)) or ((date.today().weekday() == 4) and (not call_fri) and (current_time.time() == fri_time_C))):
