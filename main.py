@@ -3041,9 +3041,9 @@ def hello_world():
                     df_break_C = df_break_C[(df_break_C['TIME1']>=check_time_C) & (df_break_C['TIME1'] < fri_time_C)]
                     #price_break_C1 = df_break_C[df_break_C['TIME1'] < fri_time_C]['close'].iloc[-1]
 
-                price_break_C1 = df_break_C['close'].max()
+                price_break_C1 = df_break_C['high'].max()
                 price_check_C = df_check_C['close'].iloc[-1]
-                price_break_C2 = df_break_C['close'].min()
+                price_break_C2 = df_break_C['low'].min()
                 #df_break_C[df_break_C['TIME1'] == check_time_C]['close'].values[0]
                 print("price_break_C1 high time ",price_break_C1, file=sys.stderr)
                 print("price_break_C2 low time ",price_break_C2, file=sys.stderr)
@@ -3094,9 +3094,9 @@ def hello_world():
 
                 # price_check_P = df_break_P['close'].iloc[-1]
                 # price_break_P2 = df_break_P[df_break_P['TIME1'] == check_time_P]['close'].values[0]
-                price_break_P1 = df_break_P['close'].max()
+                price_break_P1 = df_break_P['high'].max()
                 price_check_P = df_break_P['close'].iloc[-1]
-                price_break_P2 = df_break_P['close'].min()
+                price_break_P2 = df_break_P['low'].min()
 
                 print("price_break_P1 high time ",price_break_P1, file=sys.stderr)
                 print("price_break_P1 low time ",price_break_P2, file=sys.stderr)
