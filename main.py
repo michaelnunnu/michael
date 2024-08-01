@@ -3095,7 +3095,7 @@ def hello_world():
                 # price_check_P = df_break_P['close'].iloc[-1]
                 # price_break_P2 = df_break_P[df_break_P['TIME1'] == check_time_P]['close'].values[0]
                 price_break_P1 = df_break_P['high'].max()
-                price_check_P = df_break_P['close'].iloc[-1]
+                price_check_P = df_check_P['close'].iloc[-1]
                 price_break_P2 = df_break_P['low'].min()
 
                 print("price_break_P1 high time ",price_break_P1, file=sys.stderr)
