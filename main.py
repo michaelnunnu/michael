@@ -3161,7 +3161,7 @@ def hello_world():
                 order_pending_complete_tobe_cancel = order_pending_complete
                 order_sqr_complete_cons = order_sqr_complete
                 indx = order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="C")].index
-                order_complete = order_complete.drop(order_complete.index[indx]).reset_index()
+                order_complete = order_complete.drop(order_complete.index[indx]).reset_index(drop=True)
                 order_sqr_complete = order_sqr_complete[0:0]
                 order_manage = order_manage[0:0]
                 order_pending = order_pending[0:0]
@@ -3257,9 +3257,9 @@ def hello_world():
                     err_sqr = square_off(order_manage,order_tobe_sqr_complete,s)
             elif  (len((order_complete[(order_complete['entry_time'].dt.date == datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="P")]))>0) and (((date.today().weekday() == 0) and put_mon and current_time.time() >= datetime.time(14,45,0)) or ((date.today().weekday() == 1) and put_tue and current_time.time() >= datetime.time(15,30,0)) or ((date.today().weekday() == 2) and put_wed and current_time.time() >= datetime.time(14,45,0)) or ((date.today().weekday() == 3) and put_thu and current_time.time() >= datetime.time(15,15,0)) or ((date.today().weekday() == 4) and put_fri and current_time.time() >= datetime.time(14,40,0))):
                 current_time = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
-                print("suqaring off position"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
-                requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "suqaring off position"})
-                requests.post(SEND_URL1, json={'chat_id': CHAT_ID1, 'text': "suqaring off position"})
+                print("suqaring off put position"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
+                requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "suqaring off put position"})
+                requests.post(SEND_URL1, json={'chat_id': CHAT_ID1, 'text': "suqaring off put position"})
                 order_complete = order_complete.sort_values(by=['leg'],ignore_index=True)
                 order_tobe_sqr_complete = order_complete[(order_complete['entry_time'].dt.date == datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="P")]
                 order_pending_tobe_cancel = order_pending
@@ -3268,7 +3268,7 @@ def hello_world():
                 indx = order_complete[(order_complete['entry_time'].dt.date == datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="P")].index
                 print(order_complete[(order_complete['entry_time'].dt.date == datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="P")], file=sys.stderr)
                 print(indx, file=sys.stderr)
-                order_complete = order_complete.drop(order_complete.index[indx]).reset_index()
+                order_complete = order_complete.drop(order_complete.index[indx]).reset_index(drop=True)
                 order_sqr_complete = order_sqr_complete[0:0]
                 order_manage = order_manage[0:0]
                 order_pending = order_pending[0:0]
