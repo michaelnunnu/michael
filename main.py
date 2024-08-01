@@ -3358,7 +3358,7 @@ def hello_world():
                     gfile = drive.CreateFile({'parents' : [{'id' : folder}], 'title' : "order_sqr_complete_cons.txt"})
                     gfile.SetContentFile("order_sqr_complete_cons.txt")
                     gfile.Upload()
-                if order_tobe_sqr_complete:
+                if len(order_tobe_sqr_complete) > 0:
                     err_sqr = square_off(order_manage,order_tobe_sqr_complete,s)
             elif (current_time1>=datetime.time(15,30,0)):
                 # order_complete = order_complete[0:0]
