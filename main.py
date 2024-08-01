@@ -3261,7 +3261,7 @@ def hello_world():
                 requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "suqaring off position"})
                 requests.post(SEND_URL1, json={'chat_id': CHAT_ID1, 'text': "suqaring off position"})
                 order_complete = order_complete.sort_values(by=['leg'],ignore_index=True)
-                order_tobe_sqr_complete = order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="P")]
+                order_tobe_sqr_complete = order_complete[(order_complete['entry_time'].dt.date == datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="P")]
                 order_pending_tobe_cancel = order_pending
                 order_pending_complete_tobe_cancel = order_pending_complete
                 order_sqr_complete_cons = order_sqr_complete
