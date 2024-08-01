@@ -3220,7 +3220,7 @@ def order_place_sqr_complete(s,file_list,drive,current_signal,opt_id_1,symbol_op
                 ord_data = s.orders()
                 order_datafetch_fail = 0
                 for i in ord_data:
-                    if i['instrument_token'] == opt_id_1 :
+                    if i['instrument_token'] == opt_id_1 and i['transaction_type'] != buy_sell:
                         if i['status'] == 'COMPLETE':
                             print("order complete"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                             executed = 1
