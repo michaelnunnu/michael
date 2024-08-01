@@ -3266,7 +3266,7 @@ def hello_world():
                 order_pending_complete_tobe_cancel = order_pending_complete
                 order_sqr_complete_cons = order_sqr_complete
                 indx = order_complete[(order_complete['entry_time'].dt.date == datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="P")].index
-                print(order_complete[(order_complete['entry_time'].dt.date == datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="P")].index, file=sys.stderr)
+                print(order_complete[(order_complete['entry_time'].dt.date == datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="P")], file=sys.stderr)
                 print(indx, file=sys.stderr)
                 order_complete = order_complete.drop(order_complete.index[indx]).reset_index()
                 order_sqr_complete = order_sqr_complete[0:0]
