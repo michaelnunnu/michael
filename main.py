@@ -2999,7 +2999,9 @@ def hello_world():
                     expiry_opt_2 = df25.loc[(df25['instrument_token']==opt_id_2)]['expiry'].values[0]
                     symbol_opt_2 = df25.loc[(df25['instrument_token']==opt_id_2)]['tradingsymbol'].values[0]
                     df_opt_2 = pd.DataFrame(kite.historical_data(opt_id_2, fromm, fromm, "minute", continuous=False, oi=True))
-                                #df_opt_2 
+                   #df_opt_2 
+                    if len(df_opt_2) < 1:
+                        continue
                     df_opt_2['TIME1'] = df_opt_2['date'].dt.time
                     df_stk.at[ik,'strike'] = x
                     if len(df_opt_2[df_opt_2['TIME1'] == check_time_C]['close']) > 0:
@@ -3057,6 +3059,8 @@ def hello_world():
                     expiry_opt_2 = df25.loc[(df25['instrument_token']==opt_id_2)]['expiry'].values[0]
                     symbol_opt_2 = df25.loc[(df25['instrument_token']==opt_id_2)]['tradingsymbol'].values[0]
                     df_opt_2 = pd.DataFrame(kite.historical_data(opt_id_2, fromm, fromm, "minute", continuous=False, oi=True))
+                    if len(df_opt_2) < 1:
+                        continue
                     #df_opt_2 
                     df_opt_2['TIME1'] = df_opt_2['date'].dt.time
                     df_stk.at[ik,'strike'] = x
