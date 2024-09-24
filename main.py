@@ -269,13 +269,13 @@ class TvDatafeed:
     @staticmethod
     def __create_df(raw_data, symbol):
         try:
-            out = re.search('"s":\[(.+?)\}\]', raw_data).group(1)
+            out = re.search(r'"s":\[(.+?)\}\]', raw_data).group(1)
             x = out.split(',{"')
             data = list()
             volume_data = True
 
             for xi in x:
-                xi = re.split("\[|:|,|\]", xi)
+                xi = re.split(r"\[|:|,|\]", xi)
                 ts = datetime.datetime.fromtimestamp(float(xi[4]))
 
                 row = [ts]
@@ -919,7 +919,7 @@ def hello_world():
         if(file['title'] =="order_tobe_sqr_complete.txt"):
             order_tobe_sqr_complete = pd.read_csv(file['title'])
     df25 = pd.read_csv('instruments.csv',parse_dates=True,dayfirst=True)
-    # tv = TvDatafeed()
+    tv = TvDatafeed()
     trade_id = 0
     if len(order_manage)<0:
         order_manage =pd.DataFrame(columns=COLUMN_NAMES)
