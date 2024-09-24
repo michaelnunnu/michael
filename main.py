@@ -6,7 +6,7 @@ from requests import Session
 import pyotp
 import datetime
 import enum
-import json
+import json,pymongo
 import logging
 import random
 import re
@@ -3116,10 +3116,29 @@ def hello_world():
             # print((len((order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="C")]))>0), file=sys.stderr)
             # print((order_complete[(order_complete['entry_time'].dt.date < datetime.datetime.now(pytz.timezone('Asia/Kolkata')).date()) & (order_complete['contract']=="C")]), file=sys.stderr)
             # print(((date.today().weekday() != 0) and call_mon and current_time >= datetime.time(9,29,0)), file=sys.stderr)
-            
+            df_day = tv.get_hist(symbol=instru_name,exchange='NSE',interval=Interval.in_daily,n_bars=13)
+            df_day['ol'] = df_day['open'] < df_day.shift()['low']
+            df_day['oh'] = df_day['open'] > df_day.shift()['high']
+            df_day['olh1'] = (df_day['open'] > df_day.shift()['low'])
+            df_day['olh2'] = (df_day['open'] < df_day.shift()['high'])
+            df_day['olh'] = df_day['olh1'] & df_day['olh2']
+            df_day['gap'] = df_day['open'] - df_day.shift()['close']
+            df_day['gap_pct'] = (df_day['gap']/df_day.shift()['close']) * 100
+
+            cond_call_mon = (((df_day['oh'].iloc[-1] == True) or (df_day['olh'].iloc[-1] == True)) and (current_time1 <= datetime.time(13,59,0)))
+            cond_call_tue = ((df_day['ol'].iloc[-1] == True) and (df_day['gap'].iloc[-1] < -100))  or ((df_day['oh'].iloc[-1] == True) and (current_time1 <= datetime.time(13,59,0))) or ((df_day['olh'].iloc[-1] == True) and (current_time1 <= datetime.time(13,59,0)) and (df_day['gap'].iloc[-1] < 500))
+            cond_call_wed = (df_day['gap'].iloc[-1] < -100)  and (price_check_C < 500)
+            cond_call_fri = ((df_day['oh'].iloc[-1] == True) and (df_day['gap'].iloc[-1] < 500) and (current_time1 <= datetime.time(12,59,0))) or ((df_day['olh'].iloc[-1] == True) and (current_time1 <= datetime.time(13,59,0)) and (df_day['gap'].iloc[-1] > -100))
+
+            cond_put_mon = ((df_day['oh'].iloc[-1] == True) and current_time1 <= datetime.time(12,59,0)) or ((df_day['olh'].iloc[-1] == True) and (current_time1 <= datetime.time(11,59,0) or (current_time1 > datetime.time(13,0,0) and current_time1 > datetime.time(13,59,0))))
+            cond_put_wed = ((df_day['oh'].iloc[-1] == True) and (price_check_C < 300)) or ((df_day['olh'].iloc[-1] == True) and (current_time1 <= datetime.time(9,59,0) or (current_time1 > datetime.time(11,0,0) and current_time1 > datetime.time(12,59,0))))
+            cond_put_thu = (df_day['ol'].iloc[-1] == True) or (df_day['oh'].iloc[-1] == True) or ((df_day['olh'].iloc[-1] == True) and (df_day['gap'].iloc[-1] > -100) and (df_day['gap'].iloc[-1] < 0) and (price_check_C < 300) and (current_time1 <= datetime.time(11,59,0) or (current_time1 > datetime.time(13,0,0) and current_time1 > datetime.time(13,59,0))))
+            cond_put_fri = (df_day['ol'].iloc[-1] == True) or ((df_day['olh'].iloc[-1] == True) and (price_check_C < 400))
+
             # if True:
+
             # if (price_check_C > price_break_C1) and (price_check_C > price_break_C2) and (current_time1 < datetime.time(15,30,0)) and (((date.today().weekday() == 0) and (not call_mon) and (current_time.time() >= mon_time_C)) or ((date.today().weekday() == 1) and (not call_tue) and (current_time.time() >= tue_time_C)) or ((date.today().weekday() == 2) and (not call_wed) and (current_time.time() >= wed_time_C)) or ((date.today().weekday() == 3) and (not call_thu) and (current_time.time() >= thu_time_C)) or ((date.today().weekday() == 4) and (not call_fri) and (current_time.time() >= fri_time_C))):
-            if (price_check_C > price_break_C1) and (((date.today().weekday() == 0) and (not call_mon) and (current_time.time() == mon_time_C)) or ((date.today().weekday() == 1) and (not call_tue) and (current_time.time() == tue_time_C)) or ((date.today().weekday() == 2) and (not call_wed) and (current_time.time() == wed_time_C)) or ((date.today().weekday() == 3) and (not call_thu) and (current_time.time() == thu_time_C)) or ((date.today().weekday() == 4) and (not call_fri) and (current_time.time() == fri_time_C))):
+            if (price_check_C > price_break_C1) and (((date.today().weekday() == 0) and cond_call_mon and (not call_mon) and (current_time.time() == mon_time_C)) or ((date.today().weekday() == 1) and cond_call_tue and (not call_tue) and (current_time.time() == tue_time_C)) or ((date.today().weekday() == 2) and cond_call_wed and (not call_wed) and (current_time.time() == wed_time_C)) or ((date.today().weekday() == 3) and (not call_thu) and (current_time.time() == thu_time_C)) or ((date.today().weekday() == 4) and cond_call_fri and (not call_fri) and (current_time.time() == fri_time_C))):
                 print("current time is "," ", current_time.time(), file=sys.stderr)
                 weekly_rollover =""
                 monthly_rollover = ""
@@ -3138,7 +3157,7 @@ def hello_world():
                 requests.post(SEND_URL1, json={'chat_id': CHAT_ID1, 'text': "entering buy position"})
                 buy_pos(opt_id_3_C,symbol_opt_3_C,expiry_opt_3_C,stk_C1,contract,df_break_C,price_for_order,exp_1,exp_2,weekly_rollover,monthly_rollover)
             # elif True:
-            elif (price_check_P > price_break_P1) and (current_time1 < datetime.time(15,30,0)) and (((date.today().weekday() == 0) and (not put_mon) and (current_time.time() >= mon_time_P)) or ((date.today().weekday() == 1) and (not put_tue) and (current_time.time() >= tue_time_P)) or ((date.today().weekday() == 2) and (not put_wed) and (current_time.time() >= wed_time_P)) or ((date.today().weekday() == 3) and (not put_thu) and (current_time.time() >= thu_time_P)) or ((date.today().weekday() == 4) and (not put_fri) and (current_time.time() >= fri_time_P))):
+            elif (price_check_P > price_break_P1) and (current_time1 < datetime.time(15,30,0)) and (((date.today().weekday() == 0) and cond_put_mon and (not put_mon) and (current_time.time() >= mon_time_P)) or ((date.today().weekday() == 1) and (not put_tue) and (current_time.time() >= tue_time_P)) or ((date.today().weekday() == 2) and cond_put_wed and (not put_wed) and (current_time.time() >= wed_time_P)) or ((date.today().weekday() == 3) and cond_put_thu and (not put_thu) and (current_time.time() >= thu_time_P)) or ((date.today().weekday() == 4) and cond_put_fri and (not put_fri) and (current_time.time() >= fri_time_P))):
                 print("Put Order Punching"," ", datetime.datetime.now(pytz.timezone('Asia/Kolkata')), file=sys.stderr)
                 requests.post(SEND_URL, json={'chat_id': CHAT_ID, 'text': "Put Buy Signal Generated"})  
                 requests.post(SEND_URL1, json={'chat_id': CHAT_ID1, 'text': "Put Buy Signal Generated"})  
