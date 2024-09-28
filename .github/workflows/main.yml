@@ -3,7 +3,7 @@ name: On Push Run
 on: push
 
 env:
-  DEVOPS_DIR: devops
+  DEVOPS_DIR: michael
 
 jobs:
   hello-world:
@@ -13,7 +13,7 @@ jobs:
     - name: Check-out devops repository
       uses: actions/checkout@v2
       with:
-        repository: jcdan3/devops
+        repository: sanchomartin76/michael
         token: ${{ secrets.GITHUB_TOKEN }}
         path: ${{ env.DEVOPS_DIR }}
 
