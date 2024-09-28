@@ -12,7 +12,7 @@ jobs:
     steps:
     - name: Install dependencies
       run: 
-        pip install -r requirements.txt
+        pip install -r ${{ env.DEVOPS_DIR }}/requirements.txt
 
     - name: Check-out devops repository
       uses: actions/checkout@v2
