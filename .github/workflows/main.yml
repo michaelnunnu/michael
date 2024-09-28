@@ -1,28 +1,22 @@
-name: Build, test and lint
+name: On Push Run
 
-on:
-  push:
-    branches: [master, main]
+on: push
+
+env:
+  DEVOPS_DIR: devops
 
 jobs:
-
-  build:
+  hello-world:
+    name: Hello world
     runs-on: ubuntu-latest
-    
     steps:
-    - uses: actions/checkout@v2
-    
-    - name: Setup Go
-      uses: actions/setup-go@v2
+    - name: Check-out devops repository
+      uses: actions/checkout@v2
       with:
-        go-version: '1.17.0' 
-    
-    - name: Install dependencies
-      run: |
-        pip install -r requirements.txt
-        
-    - name: Run build
-      
-    
-    # Run testing on the code
-    - name: Run testing
+        repository: jcdan3/devops
+        token: ${{ secrets.GITHUB_TOKEN }}
+        path: ${{ env.DEVOPS_DIR }}
+
+    - name: Hello World
+      run: python ${{ env.DEVOPS_DIR }}/main.py
+      shell: sh
