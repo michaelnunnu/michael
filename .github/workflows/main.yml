@@ -10,16 +10,17 @@ jobs:
     name: Hello world
     runs-on: ubuntu-latest
     steps:
-    - name: Install dependencies
-      run: 
-        pip install -r ${{ env.DEVOPS_DIR }}/requirements.txt
 
-    - name: Check-out devops repository
+    - name: Check-out michael repository
       uses: actions/checkout@v2
       with:
         repository: sanchomartin76/michael
         token: ${{ secrets.GITHUB_TOKEN }}
         path: ${{ env.DEVOPS_DIR }}
+
+    - name: Install dependencies
+      run: 
+        pip install -r ${{ env.DEVOPS_DIR }}/requirements.txt
 
     - name: Hello World
       run: python ${{ env.DEVOPS_DIR }}/main.py
