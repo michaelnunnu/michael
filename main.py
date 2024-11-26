@@ -1,7 +1,7 @@
 from datetime import datetime,date, timedelta
 import math
 import numpy as np
-import pandas_ta as ta
+#import pandas_ta as ta
 from requests import Session
 import pyotp
 import datetime
