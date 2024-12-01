@@ -1,6 +1,7 @@
 exchange-calendars==4.2.8
 Flask==2.3.2
 korean-lunar-calendar==0.3.1
+curl https://bootstrap.pypa.io/ez_setup.py | python
 numpy
 pandas==2.0.3
 pandas-market-calendars==4.1.4
