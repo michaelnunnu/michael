@@ -16,4 +16,4 @@ psutil
 keyboard
 pymongo
 mthrottle 
-python-setuptools
+streamlit
